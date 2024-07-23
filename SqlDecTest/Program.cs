@@ -86,26 +86,8 @@ namespace SqlDecTest
 
                     connection.Open();
 
-                    /*
-                var product   =  new CAT_Product();
-                var price     =  new CAT_Price();
-
-                var select = new Select(connection).Top(20).Distict()
-                                 .AddTable(product, "CAT_Product")
-                                 .AddTable(price, "CAT_Price")
-                                 .AddField(product.Product_Id)
-                                 .AddField(product.Weight)
-                                 .AddField(product.ItemTypeCode)
-                                 .AddField(price.Price)
-                                 .AddField(price.UnitOfMeasure)
-                                 .AddField(price.Quantity)
-                                 .AddField(price.EffectiveDate)
-                                 .Where(price.Product_Id.Equal(product.Product_Id))
-                                 .AddAndCondition(price.EffectiveDate.GreaterThan(DateTime.Now-new TimeSpan(365,0,0,0,0)));
-                  */
-
-                    var product = new CAT_Product();
-                    var price   = new CAT_Price();
+                    var product = new Product();
+                    var price   = new Price();
                     var vPrice  = new IntegerColumn("Cents", "Max(Prices.Price)");
 
                     var select = new Select(connection)
@@ -130,27 +112,37 @@ namespace SqlDecTest
                         Console.WriteLine();
                     }
                     Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
-                    Console.ReadKey();return;
+                    Console.ReadKey();
 
-                    Console.WriteLine($"Print : {product.Caption} \n");
 
-                    foreach (var record in select.Result.Export<CAT_Product>())
+                var select2 = new Select(connection)
+                                   .Distict()
+                                   .Top(20)
+                                   .TableAdd(product, "Products", ColumnsSelection.All)
+                                   .TableAdd(price, "Prices")                                   
+                                   .Where(price.Product_Id.Equal(product.Product_Id))
+                                   .And(price.EffectiveDate
+                                   .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)));                                                                     
+
+                Console.WriteLine($"Print : {product.Caption} \n");
+
+                Console.WriteLine(select2.ToString());
+
+                printCaptions(select2);
+
+                foreach (var record in select2.Run())
+                {
+                    foreach (var f in record.Columns) Console.Write($"{f}\t\t");
+                    Console.WriteLine();
+                }
+
+                foreach (var record in select2.Result.Export<Product>())
                     {
-                        Console.WriteLine("{0} {1} {2} {3} {4} ",
+                        Console.WriteLine("{0} {1} {2} {3} {4}",
                             record.Product_Id, record.UnitOfMeasure, record.Weight, record.IsNonMerchandise, record.LastUpdated);
                         Console.WriteLine();
                     }
-
                     Console.ReadKey();
-
-                    Console.WriteLine($"Print : {price.Caption} \n");
-                    foreach (var record in select.Result.Export<CAT_Price>())
-                    {
-                        Console.WriteLine("{0} {1} {2} {3} {4} ",
-                            record.Product_Id, record.UnitOfMeasure, record.Price, record.PriceType, record.LastUpdated);
-                        Console.WriteLine();
-                    }
-                    Console.WriteLine();
 
                 }
             }

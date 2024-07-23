@@ -5,7 +5,7 @@ using SQLDecorator;
 
 namespace DBTables
 { 
-    public class CAT_Product : DBTable
+    public class Product : DBTable
     {
         [ColumnName("Product_Id")]
         public StringColumn Product_Id ;
@@ -37,7 +37,7 @@ namespace DBTables
         [ColumnName("Status")]
         public IntegerColumn Status;
 
-        public CAT_Product() : base("CAT_Product", "dbo")
+        public Product() : base("CAT_Product", "dbo")
         {
             SetPrimaryKey(Product_Id);
         }
