@@ -7,17 +7,17 @@ namespace DBTables
 { 
     public class cacheReady : DBTable
     {
-        public StringColumn PKey = new StringColumn { Name = "Key" };
+        public StringColumn PKey = new StringColumn { FieldName = "Key" };
 
-        public StringColumn PValue = new StringColumn { Name = "value" };
+        public StringColumn PValue = new StringColumn { FieldName = "value" };
 
-        public NumberColumn Height = new  NumberColumn { Name = "height" };
+        public NumberColumn Height = new  NumberColumn { FieldName = "height" };
 
-        public LogicalColumn IsActive = new LogicalColumn { Name = "isactive" };
+        public LogicalColumn IsActive = new LogicalColumn { FieldName = "isactive" };
 
-        public IntegerColumn proirity = new IntegerColumn { Name = "priority" };
+        public IntegerColumn proirity = new IntegerColumn { FieldName = "priority" };
 
-        public DateTimeColumn createTS = new DateTimeColumn { Name = "create_ts" };
+        public DateTimeColumn createTS = new DateTimeColumn { FieldName = "create_ts" };
         public cacheReady() : base("cacheready",  "public")
         {            
             SetPrimaryKey(PKey);

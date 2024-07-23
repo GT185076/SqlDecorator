@@ -57,13 +57,13 @@ namespace SQLDecorator
     {
         internal string _caption { get; set; }
         public string Schema { private set; get; }
-        public string Name { private set; get; }      
-        public string Caption
+        public string TableName { private set; get; }      
+        public string TableCaption
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_caption))
-                    return Name;
+                    return TableName;
                 else
                     return _caption;
             }
@@ -77,18 +77,18 @@ namespace SQLDecorator
         {
             List<string> pkList = new List<string>();
             foreach (var fn in FiledsNames)
-                pkList.Add(fn.Name);
+                pkList.Add(fn.FieldName);
             PrimaryKey = pkList.ToArray();
             return PrimaryKey;
         }
         public DBTable(string TableName)
         {
-            this.Name = TableName;
+            this.TableName = TableName;
             createColumnsInstance(this);
         }
         public DBTable(string TableName, string SchemaName)
         {
-            this.Name = TableName;
+            this.TableName = TableName;
             this.Schema = SchemaName;
             createColumnsInstance(this);
         }
@@ -113,28 +113,28 @@ namespace SQLDecorator
     }
     public abstract class TableColumn
     {
-        internal bool IsValueOnly { get { return String.IsNullOrWhiteSpace(Name) && String.IsNullOrWhiteSpace(VirtualValue); } }
+        internal bool IsValueOnly { get { return String.IsNullOrWhiteSpace(FieldName) && String.IsNullOrWhiteSpace(VirtualValue); } }
         internal bool IsVirtualValueOnly { get { return !String.IsNullOrWhiteSpace(VirtualValue); } }
         internal string _caption { get; set; }
         public DBTable ParentTable { get; internal set; }
-        public string Name { get; set; }
+        public string FieldName { get; set; }
         public string VirtualValue { get; set; }
-        public string FullName { get
+        public string FieldFullName { get
             { 
                 if (IsVirtualValueOnly)
                     return VirtualValue;
                 if ( ParentTable != null)
-                    return $"\"{ParentTable.Caption}\".\"{Name}\"";
+                    return $"\"{ParentTable.TableCaption}\".\"{FieldName}\"";
                 else
-                    return $"\"{Name}\"";
+                    return $"\"{FieldName}\"";
             }
         }
-        public string Caption
+        public string ColumnCaption
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_caption))
-                    return Name;
+                    return FieldName;
                 else
                     return _caption;
             }
@@ -210,15 +210,15 @@ namespace SQLDecorator
         {
             if (!string.IsNullOrEmpty(caption))
             {
-                Name = caption;
-                Caption = caption;
+                FieldName = caption;
+                ColumnCaption = caption;
             }
             columnType = ColumnType.Text;
         }
 
         public StringColumn(string Caption, string VirtualValue)
         {
-            this.Caption = Caption;            
+            this.ColumnCaption = Caption;            
             columnType = ColumnType.Text;            
             this.VirtualValue = VirtualValue;
         }
@@ -242,14 +242,14 @@ namespace SQLDecorator
         {
             if (!string.IsNullOrEmpty(caption))
             {
-                Name = caption;
-                Caption = caption;
+                FieldName = caption;
+                ColumnCaption = caption;
             }
             columnType = ColumnType.Logical;
         }
         public LogicalColumn(string Caption, string VirtualValue)
         {
-            this.Caption = Caption;
+            this.ColumnCaption = Caption;
             columnType = ColumnType.Logical;
             this.VirtualValue = VirtualValue;
         }
@@ -272,15 +272,15 @@ namespace SQLDecorator
         {
             if (!string.IsNullOrEmpty(caption))
             {
-                Name = caption;
-                Caption = caption;
+                FieldName = caption;
+                ColumnCaption = caption;
             }
             columnType = ColumnType.Number;
         }
 
         public NumberColumn(string Caption, string VirtualValue)
         {
-            this.Caption = Caption;
+            this.ColumnCaption = Caption;
             columnType = ColumnType.Number;
             this.VirtualValue = VirtualValue;
         }
@@ -304,15 +304,15 @@ namespace SQLDecorator
         {
             if (!string.IsNullOrEmpty(Caption))
             {
-                Name = Caption;
-                this.Caption = Caption;
+                FieldName = Caption;
+                this.ColumnCaption = Caption;
             }
             columnType = ColumnType.Number;
         }
 
         public IntegerColumn(string Caption ,string VirtualValue)
         {
-            this.Caption = Caption;
+            this.ColumnCaption = Caption;
             columnType = ColumnType.Number;
             this.VirtualValue = VirtualValue;
         }
@@ -336,14 +336,14 @@ namespace SQLDecorator
         {
             if (!string.IsNullOrEmpty(caption))
             {
-                Name = caption;
-                Caption = caption;
+                FieldName = caption;
+                ColumnCaption = caption;
             }
             columnType = ColumnType.DateTime;
         }
         public DateTimeColumn(string Caption, string VirtualValue)
         {
-            this.Caption = Caption;
+            this.ColumnCaption = Caption;
             columnType = ColumnType.DateTime;
             this.VirtualValue = VirtualValue;
         }
@@ -400,9 +400,9 @@ namespace SQLDecorator
         }
         public Select ColumnAdd(TableColumn tc, string Caption)
         {            
-            if (!string.IsNullOrEmpty(Caption)) tc.Caption = Caption;
+            if (!string.IsNullOrEmpty(Caption)) tc.ColumnCaption = Caption;
             SelectedFields.Add(tc);
-            FieldsDictionary.Add(tc.Caption, _fieldCount++);
+            FieldsDictionary.Add(tc.ColumnCaption, _fieldCount++);
             return this;
         }
         public Select ColumnAdd(params TableColumn[] tc)
@@ -410,7 +410,7 @@ namespace SQLDecorator
             foreach (var c in tc)
             {
                 SelectedFields.Add(c);
-                FieldsDictionary.Add(c.Caption, _fieldCount++);
+                FieldsDictionary.Add(c.ColumnCaption, _fieldCount++);
             }
             return this;
         }
@@ -438,15 +438,15 @@ namespace SQLDecorator
             Table.OrdinalNumber = SelectedTables.Count;
 
             if (!string.IsNullOrEmpty(Caption))
-                Table.Caption = Caption;
+                Table.TableCaption = Caption;
             else
-                Table.Caption = $"{Table.Name}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
 
             foreach (var f in fa)
             {
                 var tc = f.GetValue(Table) as TableColumn;                
                 tc.ParentTable = Table;
-                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.Name}_{Table.OrdinalNumber}");
+                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.FieldName}_{Table.OrdinalNumber}");
             }                     
 
             SelectedTables.Add(Table);
@@ -460,15 +460,15 @@ namespace SQLDecorator
             Table.OrdinalNumber = SelectedTables.Count;
 
             if (!string.IsNullOrEmpty(Caption))
-                Table.Caption = Caption;
+                Table.TableCaption = Caption;
             else
-                Table.Caption = $"{Table.Name}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
 
             foreach (var f in fa)
             {
                 var tc = f.GetValue(Table) as TableColumn;
                 tc.ParentTable = Table;
-                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.Name}_{Table.OrdinalNumber}");            
+                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}_{Table.OrdinalNumber}");            
             }
            
             Table.LeftJoinCondition = JoinCondition;
@@ -527,12 +527,12 @@ namespace SQLDecorator
             foreach (var f in SelectedFields)
             {
                 if (isFirst==true)
-                    sf.Append($" {f.FullName} ");
+                    sf.Append($" {f.FieldFullName} ");
                 else
-                    sf.Append(", ").Append($"{f.FullName} ");
+                    sf.Append(", ").Append($"{f.FieldFullName} ");
 
-                if (!string.IsNullOrEmpty(f.Caption))
-                    sf.Append($"\"{f.Caption}\" ");
+                if (!string.IsNullOrEmpty(f.ColumnCaption))
+                    sf.Append($"\"{f.ColumnCaption}\" ");
 
                 isFirst = false;
             }
@@ -544,16 +544,16 @@ namespace SQLDecorator
                 if (t.LeftJoinCondition == null)
                 {
                     if (st.Length <= FROM.Length)
-                        st.Append($" \"{t.Schema}\".\"{t.Name}\" ");
+                        st.Append($" \"{t.Schema}\".\"{t.TableName}\" ");
                     else
-                        st.Append(",").Append($"\"{t.Schema}\".\"{t.Name}\" ");
+                        st.Append(",").Append($"\"{t.Schema}\".\"{t.TableName}\" ");
 
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
                 }
                 else
                 {
-                    st.Append($" LEFT JOIN \"{t.Schema}\".\"{t.Name}\" ");
+                    st.Append($" LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 
@@ -580,9 +580,9 @@ namespace SQLDecorator
             foreach (var g in GroupBy)
             {
                 if (gb.Length <= GROUPBY.Length)
-                    gb.Append($" {g.FullName}");
+                    gb.Append($" {g.FieldFullName}");
                 else
-                    gb.Append($",{g.FullName}");
+                    gb.Append($",{g.FieldFullName}");
             }
 
             StringBuilder ob = new StringBuilder();
@@ -591,9 +591,9 @@ namespace SQLDecorator
             foreach (var o in OrderBy)
             {
                 if (ob.Length <= ORDERBY.Length)
-                    ob.Append($" {o.Key.FullName} {o.Value.ToString()}");
+                    ob.Append($" {o.Key.FieldFullName} {o.Value.ToString()}");
                 else
-                    ob.Append($",{o.Key.FullName} {o.Value.ToString()}");
+                    ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
             }
 
             _compliedSentes = sf.ToString() + st.ToString() + sw.ToString() + gb.ToString() +ob.ToString();
@@ -695,9 +695,9 @@ namespace SQLDecorator
         }
         public string ToString(StringBuilder sentes = null)
         {
-            string firstOperandName =   FirstOperand?.FullName;
-            string secondOperandName =  SecondOperand?.FullName;
-            string thirdOperandName  =  ThirdOperand?.FullName;
+            string firstOperandName =   FirstOperand?.FieldFullName;
+            string secondOperandName =  SecondOperand?.FieldFullName;
+            string thirdOperandName  =  ThirdOperand?.FieldFullName;
 
             if (sentes == null)
             {
@@ -1328,9 +1328,9 @@ namespace SQLDecorator
         static public TableColumn Clone(this TableColumn original)
         {
             if (original.columnType == ColumnType.Text)
-                return new StringColumn(original.Caption)
+                return new StringColumn(original.ColumnCaption)
                 {
-                    Name = original.Name,
+                    FieldName = original.FieldName,
                     ParentTable = original.ParentTable,
                     OrdinalNumber = original.OrdinalNumber,
                     VirtualValue = original.VirtualValue,
@@ -1338,9 +1338,9 @@ namespace SQLDecorator
                 };
 
             if (original.columnType == ColumnType.Number)
-                return new NumberColumn(original.Caption)
+                return new NumberColumn(original.ColumnCaption)
                 {
-                    Name = original.Name,
+                    FieldName = original.FieldName,
                     ParentTable = original.ParentTable,
                     OrdinalNumber = original.OrdinalNumber,
                     VirtualValue = original.VirtualValue,
@@ -1348,9 +1348,9 @@ namespace SQLDecorator
                 };
 
             if (original.columnType == ColumnType.Integer)
-                return new IntegerColumn(original.Caption)
+                return new IntegerColumn(original.ColumnCaption)
                 {
-                    Name = original.Name,
+                    FieldName = original.FieldName,
                     ParentTable = original.ParentTable,
                     OrdinalNumber = original.OrdinalNumber,
                     VirtualValue = original.VirtualValue,
@@ -1358,9 +1358,9 @@ namespace SQLDecorator
                 };
 
             if (original.columnType == ColumnType.Logical)
-                return new LogicalColumn(original.Caption)
+                return new LogicalColumn(original.ColumnCaption)
                 {
-                    Name = original.Name,
+                    FieldName = original.FieldName,
                     ParentTable = original.ParentTable,
                     OrdinalNumber = original.OrdinalNumber,
                     VirtualValue = original.VirtualValue,
@@ -1368,9 +1368,9 @@ namespace SQLDecorator
                 };
 
             if (original.columnType ==  ColumnType.DateTime)
-                return new DateTimeColumn(original.Caption)
+                return new DateTimeColumn(original.ColumnCaption)
                 {
-                    Name = original.Name,
+                    FieldName = original.FieldName,
                     ParentTable = original.ParentTable,
                     OrdinalNumber = original.OrdinalNumber,
                     VirtualValue = original.VirtualValue,
@@ -1392,32 +1392,32 @@ namespace SQLDecorator
                 if (f.columnType == ColumnType.Text)
                 {
                     var sc = f as StringColumn;
-                    sc.Value = Reader[f.Caption].ToString();
+                    sc.Value = Reader[f.ColumnCaption].ToString();
                 }
                 if (f.columnType == ColumnType.Number)
                 {
                     var nc = f as NumberColumn;
                     decimal d = 0m;
-                    decimal.TryParse(Reader[f.Caption].ToString(), out d);
+                    decimal.TryParse(Reader[f.ColumnCaption].ToString(), out d);
                     nc.Value = d;
                 }
                 if (f.columnType == ColumnType.Integer)
                 {
                     var ic = f as IntegerColumn;
                     int i = 0;
-                    int.TryParse(Reader[f.Caption].ToString(), out i);
+                    int.TryParse(Reader[f.ColumnCaption].ToString(), out i);
                     ic.Value = i;
                 }
                 if (f.columnType == ColumnType.Logical)
                 {
                     var lc = f as LogicalColumn;
-                    lc.Value = Reader[f.Caption].ToString() == "True";
+                    lc.Value = Reader[f.ColumnCaption].ToString() == "True";
                 }
                 if (f.columnType == ColumnType.DateTime)
                 {
                     var dtc = f as DateTimeColumn;
                     DateTime dt;
-                    DateTime.TryParse(Reader[f.Caption].ToString(), out dt);
+                    DateTime.TryParse(Reader[f.ColumnCaption].ToString(), out dt);
                     dtc.Value = dt;
                 }
             }           
@@ -1446,7 +1446,7 @@ namespace SQLDecorator
                         int i = 0;
                         foreach (var c in resultRecord.Columns)
                         {
-                            if (!c.IsVirtualValueOnly && c.ParentTable.Name == mapRecord.Name && mc.Name == c.Name)
+                            if (!c.IsVirtualValueOnly && c.ParentTable.TableName == mapRecord.TableName && mc.FieldName == c.FieldName)
                             {
                                 nc._value = c._value;
                                 mc.OrdinalNumber = i;
@@ -1480,7 +1480,7 @@ namespace SQLDecorator
                         int i = 0;
                         foreach (var c in resultRecord.Columns)
                         {
-                            if (c.ParentTable.OrdinalNumber==TableOrdinalNumber && mc.Name == c.Name)
+                            if (c.ParentTable.OrdinalNumber==TableOrdinalNumber && mc.FieldName == c.FieldName)
                             {
                                 nc._value = c._value;
                                 mc.OrdinalNumber = i;

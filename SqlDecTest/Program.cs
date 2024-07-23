@@ -47,11 +47,11 @@ namespace SqlDecTest
                 Console.WriteLine();
 
                 foreach (var c in select.SelectedFields)
-                    Console.Write(c.Caption + "\t\t");
+                    Console.Write(c.ColumnCaption + "\t\t");
                 Console.WriteLine();
 
                 foreach (var c in select.SelectedFields)
-                    Console.Write(string.Empty.PadLeft(c.Caption.Length, '-') + "\t\t");
+                    Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
                 Console.WriteLine();
 
                 var runner = new PostGressSelectRunner();
@@ -120,7 +120,7 @@ namespace SqlDecTest
                                    .And(price.EffectiveDate
                                    .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)));                                                                     
 
-                Console.WriteLine($"Print : {product.Caption} \n");
+                Console.WriteLine($"Print : {product.TableCaption} \n");
 
                 Console.WriteLine(select2.ToString());
 
@@ -146,10 +146,10 @@ namespace SqlDecTest
             {
                 Console.WriteLine();
                 foreach (var c in select.SelectedFields)
-                    Console.Write(c.Caption + "\t\t");
+                    Console.Write(c.ColumnCaption + "\t\t");
                 Console.WriteLine();
                 foreach (var c in select.SelectedFields)
-                    Console.Write(string.Empty.PadLeft(c.Caption.Length, '-') + "\t\t");
+                    Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
                 Console.WriteLine();
             }
         }
