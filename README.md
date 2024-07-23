@@ -14,7 +14,7 @@ Here an example how SQL Mapping can be easy :
 
         namespace DBTables
         { 
-            public class CAT_Product : DBTable
+            public class Product : DBTable
             {
                 [ColumnName("Product_Id")]
                 public StringColumn Product_Id ;
@@ -46,7 +46,7 @@ Here an example how SQL Mapping can be easy :
                 [ColumnName("Status")]
                 public IntegerColumn Status;
 
-                public CAT_Product() : base("CAT_Product", "dbo")
+                public Product() : base("CAT_Product", "dbo")
                 {
                     SetPrimaryKey(Product_Id);
                 }
