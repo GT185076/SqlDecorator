@@ -10,14 +10,10 @@ namespace SqlDecTest
         class Program
         {
             static async Task Main(string[] args)
-            {
-               
+            {               
                 Console.WriteLine("Data Base Object Mapper");
-                Console.WriteLine("-----------------------");
-
-                // await RunPostGress();
+                Console.WriteLine("-----------------------");               
                 RunMssql();
-
                 Console.ReadKey();
             }
           
