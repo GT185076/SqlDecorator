@@ -5,7 +5,8 @@ By Gadi Toledano, 2024
 Sql Decorator is a simple project aimed to practice some of the common design patterns.
 Sql decorator is also a simple Object Relationship Management mapper to SQL tables.  
 Here an example how SQL Mapping can be easy :
-( Based On NorthWings Sample data base from : https://github.com/microsoft/sql-server-samples/blob/master/samples/databases/northwind-pubs/instnwnd.sql )
+(Based On # NorthWings Sample data base 
+from : https://github.com/microsoft/sql-server-samples/blob/master/samples/databases/northwind-pubs/instnwnd.sql)
 
 
         using System;
