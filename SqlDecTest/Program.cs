@@ -95,7 +95,7 @@ namespace SqlDecTest
                     connection.Open();
 
                     var product = new Product();
-                    var price   = new Price();
+                    var price   = new Orders();
                     var vPrice  = new IntegerColumn("Cents", "Max(Products.UnitPrice)");
 
                     var select = new Select(connection)
