@@ -9,4 +9,10 @@
     <ProjectReference Include="..\SqlDecorator\SQLDecorator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="MsssqlDBTables\NorthWind.Sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
