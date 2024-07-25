@@ -53,3 +53,29 @@ Here an example how SQL Mapping can be easy :
             }
         }
     }
+
+Wrting a SQL tables quaery (Select) can be a simple a this :
+
+                    var product = new Product();
+                    var price   = new Price();
+                    var vPrice  = new IntegerColumn("Cents", "Max(Prices.Price)");
+
+                    var select = new Select(connection)
+                                   .TableAdd(product, "Products")
+                                   .TableAdd(price, "Prices")
+                                   .ColumnAdd(product.Product_Id)
+                                   .ColumnAdd(vPrice)
+                                   .Where(price.Product_Id.Equal(product.Product_Id))
+                                   .And(price.EffectiveDate
+                                   .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)))
+                                   .GroupByAdd(product.Product_Id)
+                                   .OrderByAdd(OrderBy.Asc, vPrice);
+
+
+And reading the answer   
+
+        foreach (var record in select.Run())
+                    {
+                        foreach (var f in record.Columns) Console.Write($"{f}\t\t");
+                        Console.WriteLine();
+                    }
