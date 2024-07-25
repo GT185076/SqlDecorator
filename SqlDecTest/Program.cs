@@ -85,12 +85,12 @@ namespace SqlDecTest
 
                 var product = new Product();
                 var order   = new Orders();
-                var vPrice  = new IntegerColumn("Cents", "Max(Products.UnitPrice)");
+                var vPrice  = new IntegerColumn("Price", "Max(Products.UnitPrice)");
 
                 var select = new Select(connection)
-                         .TableAdd(product, "Products")
-                         .ColumnAdd(product.ProductName)
+                         .TableAdd(product, "Products")                       
                          .ColumnAdd(vPrice)
+                         .ColumnAdd(product.ProductName)
                          .GroupByAdd(product.ProductName);
 
 

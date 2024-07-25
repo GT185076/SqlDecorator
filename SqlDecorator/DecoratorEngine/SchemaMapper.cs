@@ -398,9 +398,11 @@ namespace SQLDecorator
             _Top = RowsCount;
             return this;
         }
-        public Select ColumnAdd(TableColumn tc, string Caption)
+        public Select ColumnAdd(TableColumn tc, string Caption = null)
         {            
-            if (!string.IsNullOrEmpty(Caption)) tc.ColumnCaption = Caption;
+            if (!string.IsNullOrEmpty(Caption)) 
+                tc.ColumnCaption = Caption;
+           
             SelectedFields.Add(tc);
             FieldsDictionary.Add(tc.ColumnCaption, _fieldCount++);
             return this;
