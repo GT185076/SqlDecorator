@@ -18,55 +18,7 @@ namespace SqlDecTest
                 Console.ReadKey();
             }
           
-            static async Task RunPostGress()
-            {
-                var connString = "Host=localhost;Username=postgres;Password=admin1234;Database=postgres";
-
-                await using var conn = new NpgsqlConnection(connString);
-                await conn.OpenAsync();
-
-                var cr = new cacheReady();
-                var cr2 = new cacheReady();
-
-                var select = new Select(conn).TableAdd(cr, "redis")
-                                      .ColumnAdd(cr.PKey)
-                                      .ColumnAdd(cr.PValue, "Value")
-                                      .ColumnAdd(cr.IsActive)
-                                      .ColumnAdd(cr.Height, "Height")
-                                      .ColumnAdd(cr.createTS, "Create TS")
-                                      .AndNot(cr.PKey.Equal("gadi")
-                                                       .And(cr.IsActive)
-                                                       .AndNot(cr.PValue.Equal("LEON")))
-                                      .And(cr.PValue.Equal("toledano"))
-                                      .Or(cr.PValue.Equal(cr.PKey))
-                                      .LeftJoinTableAdd(cr2, cr2.PKey.Equal("5"), "selfi");
-
-                var selectString = select.ToString();
-                Console.WriteLine(selectString);
-
-                Console.ReadKey();
-                Console.WriteLine();
-
-                foreach (var c in select.SelectedFields)
-                    Console.Write(c.ColumnCaption + "\t\t");
-                Console.WriteLine();
-
-                foreach (var c in select.SelectedFields)
-                    Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
-                Console.WriteLine();
-
-                var runner = new PostGressSelectRunner();
-
-                foreach (var record in runner.Run(select, conn))
-                {
-                    foreach (var f in record.Columns)
-                        Console.Write($"{f}\t\t");
-                    Console.WriteLine();
-                }
-
-                Console.WriteLine();
-                Console.Write($"{select.Result.Count} Rows Selected.");
-            }
+         
         static void RunMssql()
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
@@ -117,6 +69,56 @@ namespace SqlDecTest
                 foreach (var c in select.SelectedFields)
                     Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
                 Console.WriteLine();
+            }
+
+                   static async Task RunPostGress()
+            {
+                var connString = "Host=localhost;Username=postgres;Password=admin1234;Database=postgres";
+
+                await using var conn = new NpgsqlConnection(connString);
+                await conn.OpenAsync();
+
+                var cr = new cacheReady();
+                var cr2 = new cacheReady();
+
+                var select = new Select(conn).TableAdd(cr, "redis")
+                                      .ColumnAdd(cr.PKey)
+                                      .ColumnAdd(cr.PValue, "Value")
+                                      .ColumnAdd(cr.IsActive)
+                                      .ColumnAdd(cr.Height, "Height")
+                                      .ColumnAdd(cr.createTS, "Create TS")
+                                      .AndNot(cr.PKey.Equal("gadi")
+                                                       .And(cr.IsActive)
+                                                       .AndNot(cr.PValue.Equal("LEON")))
+                                      .And(cr.PValue.Equal("toledano"))
+                                      .Or(cr.PValue.Equal(cr.PKey))
+                                      .LeftJoinTableAdd(cr2, cr2.PKey.Equal("5"), "selfi");
+
+                var selectString = select.ToString();
+                Console.WriteLine(selectString);
+
+                Console.ReadKey();
+                Console.WriteLine();
+
+                foreach (var c in select.SelectedFields)
+                    Console.Write(c.ColumnCaption + "\t\t");
+                Console.WriteLine();
+
+                foreach (var c in select.SelectedFields)
+                    Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
+                Console.WriteLine();
+
+                var runner = new PostGressSelectRunner();
+
+                foreach (var record in runner.Run(select, conn))
+                {
+                    foreach (var f in record.Columns)
+                        Console.Write($"{f}\t\t");
+                    Console.WriteLine();
+                }
+
+                Console.WriteLine();
+                Console.Write($"{select.Result.Count} Rows Selected.");
             }
         }
     }
