@@ -67,88 +67,47 @@ namespace SqlDecTest
                 Console.WriteLine();
                 Console.Write($"{select.Result.Count} Rows Selected.");
             }
-            static void RunMssql()
+        static void RunMssql()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+
+            builder.DataSource = "WILGT185076-R4B";
+            builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+            builder.InitialCatalog = "NorthWind";
+            builder.TrustServerCertificate = true;
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                Console.WriteLine("\nQuery data example:");
+                Console.WriteLine("=========================================\n");
 
-                builder.DataSource = "WILGT185076-R4B";
-                builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
-                builder.InitialCatalog = "NorthWind";
-                builder.TrustServerCertificate = true;
-                
-                /*try
-                  {
-                        var migration = new MsSqlMigration(new SqlConnection(builder.ConnectionString));
-                        migration.Run();
-                  }
-                 catch (Exception ex)
-                  {
-                        Console.WriteLine(ex.ToString());
-                        return;
-                  }*/
+                connection.Open();
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    Console.WriteLine("\nQuery data example:");
-                    Console.WriteLine("=========================================\n");
+                var product = new Product();
+                var order   = new Orders();
+                var vPrice  = new IntegerColumn("Cents", "Max(Products.UnitPrice)");
 
-                    connection.Open();
-
-                    var product = new Product();
-                    var price   = new Orders();
-                    var vPrice  = new IntegerColumn("Cents", "Max(Products.UnitPrice)");
-
-                    var select = new Select(connection)
-                             .TableAdd(product, "Products")
-                             .ColumnAdd(product.ProductName)
-                             .ColumnAdd(vPrice)
-                             .GroupByAdd(product.ProductName);
-                                 
-
-                    Console.WriteLine(select.ToString());
-
-                    printCaptions(select);
-
-                    foreach (var record in select.Run())
-                    {
-                        foreach (var f in record.Columns) Console.Write($"{f}\t\t");
-                        Console.WriteLine();
-                    }
-                    Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
-                    Console.ReadKey();
+                var select = new Select(connection)
+                         .TableAdd(product, "Products")
+                         .ColumnAdd(product.ProductName)
+                         .ColumnAdd(vPrice)
+                         .GroupByAdd(product.ProductName);
 
 
-                var select2 = new Select(connection)
-                                   .Distict()
-                                   .Top(20)
-                                   .TableAdd(product, "Products", ColumnsSelection.All)
-                                   .TableAdd(price, "Prices")                                   
-                                   .Where(price.Product_Id.Equal(product.ProductId.ToString()))
-                                   .And(price.EffectiveDate
-                                   .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)));                                                                     
+                Console.WriteLine(select.ToString());
 
-                Console.WriteLine($"Print : {product.TableCaption} \n");
+                printCaptions(select);
 
-                Console.WriteLine(select2.ToString());
-
-                printCaptions(select2);
-
-                foreach (var record in select2.Run())
+                foreach (var record in select.Run())
                 {
                     foreach (var f in record.Columns) Console.Write($"{f}\t\t");
                     Console.WriteLine();
                 }
+                Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
+                Console.ReadKey();
 
-                foreach (var record in select2.Result.Export<Product>())
-                    {
-                        Console.WriteLine("{0} {1} {2} {3} {4}",
-                            record.ProductId, record.ProductName, record.UnitPrice, record.Discontinued, record.UnitsInStock);
-                        Console.WriteLine();
-                    }
-                    Console.ReadKey();
-
-                }
             }
+        }
             private static void printCaptions(Select select)
             {
                 Console.WriteLine();
