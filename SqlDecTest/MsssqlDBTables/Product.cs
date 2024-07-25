@@ -4,42 +4,42 @@ using System.Text;
 using SQLDecorator;
 
 namespace DBTables
-{ 
+{   
     public class Product : DBTable
     {
-        [ColumnName("Product_Id")]
-        public StringColumn Product_Id ;
+        [ColumnName("ProductID")]
+        public IntegerColumn ProductId ;
 
-        [ColumnName("Weight")]
-        public NumberColumn Weight ;
+        [ColumnName("ProductName")]
+        public StringColumn ProductName;
 
-        [ColumnName("UnitOfMeasure")]
-        public StringColumn UnitOfMeasure ;
+        [ColumnName("SupplierID")]
+        public IntegerColumn SupplierID;
 
-        [ColumnName("IsManualPercentageEnable")]
-        public LogicalColumn IsManualPercentageEnable ;
+        [ColumnName("CategoryID")]
+        public IntegerColumn CategoryID;
 
-        [ColumnName("IsNonMerchandise")]
-        public LogicalColumn IsNonMerchandise ;
+        [ColumnName("QuantityPerUnit")]
+        public StringColumn QuantityPerUnit;
 
-        [ColumnName("MerchandiseCategoryFk")]
-        public IntegerColumn MerchandiseCategoryFk ;
+        [ColumnName("UnitPrice")]
+        public NumberColumn UnitPrice;
 
-        [ColumnName("ItemTypeCode")]
-        public IntegerColumn ItemTypeCode;
+        [ColumnName("UnitsInStock")]
+        public IntegerColumn UnitsInStock;
 
-        [ColumnName("NacsCode")]
-        public StringColumn NacsCode;
-        
-        [ColumnName("LastUpdated")]
-        public DateTimeColumn LastUpdated;
+        [ColumnName("UnitsOnOrder")]
+        public IntegerColumn UnitsOnOrder;
 
-        [ColumnName("Status")]
-        public IntegerColumn Status;
+        [ColumnName("ReorderLevel")]
+        public IntegerColumn ReorderLevel;
 
-        public Product() : base("CAT_Product", "dbo")
+        [ColumnName("Discontinued")]
+        public LogicalColumn Discontinued;
+
+        public Product() : base("Products", "dbo")
         {
-            SetPrimaryKey(Product_Id);
+            SetPrimaryKey(ProductId);
         }
     }
 }

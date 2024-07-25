@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using SQLDecorator;
 using DBTables;
+using SqlDecTest.MsssqlDBTables;
 
 namespace SqlDecTest
 {
@@ -72,8 +73,19 @@ namespace SqlDecTest
 
                 builder.DataSource = "WILGT185076-R4B";
                 builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
-                builder.InitialCatalog = "STS_Grocery";
+                builder.InitialCatalog = "NorthWind";
                 builder.TrustServerCertificate = true;
+                
+                /*try
+                  {
+                        var migration = new MsSqlMigration(new SqlConnection(builder.ConnectionString));
+                        migration.Run();
+                  }
+                 catch (Exception ex)
+                  {
+                        Console.WriteLine(ex.ToString());
+                        return;
+                  }*/
 
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
@@ -84,19 +96,14 @@ namespace SqlDecTest
 
                     var product = new Product();
                     var price   = new Price();
-                    var vPrice  = new IntegerColumn("Cents", "Max(Prices.Price)");
+                    var vPrice  = new IntegerColumn("Cents", "Max(Products.UnitPrice)");
 
                     var select = new Select(connection)
-                                   .TableAdd(product, "Products")
-                                   .TableAdd(price, "Prices")
-                                   .ColumnAdd(product.Product_Id)
-                                   .ColumnAdd(vPrice)
-                                   .Where(price.Product_Id.Equal(product.Product_Id))
-                                   .And(price.EffectiveDate
-                                   .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)))
-                                   .GroupByAdd(product.Product_Id)
-                                   .OrderByAdd(OrderBy.Asc, vPrice);
-                              
+                             .TableAdd(product, "Products")
+                             .ColumnAdd(product.ProductName)
+                             .ColumnAdd(vPrice)
+                             .GroupByAdd(product.ProductName);
+                                 
 
                     Console.WriteLine(select.ToString());
 
@@ -116,7 +123,7 @@ namespace SqlDecTest
                                    .Top(20)
                                    .TableAdd(product, "Products", ColumnsSelection.All)
                                    .TableAdd(price, "Prices")                                   
-                                   .Where(price.Product_Id.Equal(product.Product_Id))
+                                   .Where(price.Product_Id.Equal(product.ProductId.ToString()))
                                    .And(price.EffectiveDate
                                    .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)));                                                                     
 
@@ -135,7 +142,7 @@ namespace SqlDecTest
                 foreach (var record in select2.Result.Export<Product>())
                     {
                         Console.WriteLine("{0} {1} {2} {3} {4}",
-                            record.Product_Id, record.UnitOfMeasure, record.Weight, record.IsNonMerchandise, record.LastUpdated);
+                            record.ProductId, record.ProductName, record.UnitPrice, record.Discontinued, record.UnitsInStock);
                         Console.WriteLine();
                     }
                     Console.ReadKey();

@@ -168,3 +168,4 @@ C:\repos\MyRepos\SqlDecorator\SqlDecTest\obj\Debug\netcoreapp3.1\SqlDecTest.cspr
 C:\repos\MyRepos\SqlDecorator\SqlDecTest\obj\Debug\netcoreapp3.1\SqlDecTest.dll
 C:\repos\MyRepos\SqlDecorator\SqlDecTest\obj\Debug\netcoreapp3.1\SqlDecTest.pdb
 C:\repos\MyRepos\SqlDecorator\SqlDecTest\obj\Debug\netcoreapp3.1\SqlDecTest.genruntimeconfig.cache
+C:\repos\MyRepos\SqlDecorator\SqlDecTest\bin\Debug\netcoreapp3.1\MsssqlDBTables\NorthWind.Sql
