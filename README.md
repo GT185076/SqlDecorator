@@ -5,8 +5,6 @@ By Gadi Toledano, 2024
 Sql Decorator is a simple project aimed to practice some of the common design patterns.
 Sql decorator is also a simple Object Relationship Management mapper to SQL tables.  
 Here an example how SQL Mapping can be easy :
-(Based On **NorthWind** Sample data base 
-from : https://github.com/microsoft/sql-server-samples/blob/master/samples/databases/northwind-pubs/instnwnd.sql)
 
 
         using System;
@@ -16,68 +14,92 @@ from : https://github.com/microsoft/sql-server-samples/blob/master/samples/datab
 
         namespace DBTables
         { 
-            public class Product : DBTable
+            public class Orders : DBTable
             {
-                [ColumnName("Product_Id")]
-                public StringColumn Product_Id ;
-
-                [ColumnName("Weight")]
-                public NumberColumn Weight ;
-
-                [ColumnName("UnitOfMeasure")]
-                public StringColumn UnitOfMeasure ;
-
-                [ColumnName("IsManualPercentageEnable")]
-                public LogicalColumn IsManualPercentageEnable ;
-
-                [ColumnName("IsNonMerchandise")]
-                public LogicalColumn IsNonMerchandise ;
-
-                [ColumnName("MerchandiseCategoryFk")]
-                public IntegerColumn MerchandiseCategoryFk ;
-
-                [ColumnName("ItemTypeCode")]
-                public IntegerColumn ItemTypeCode;
-
-                [ColumnName("NacsCode")]
-                public StringColumn NacsCode;
+                [ColumnName("OrderID")]
+                public IntegerColumn OrderID;
         
-                [ColumnName("LastUpdated")]
-                public DateTimeColumn LastUpdated;
+                [ColumnName("CustomerID")]
+                public IntegerColumn CustomerID;
+        
+                [ColumnName("OrderDate")]
+                public DateTimeColumn OrderDate;
 
-                [ColumnName("Status")]
-                public IntegerColumn Status;
+                [ColumnName("ShipName")]
+                public StringColumn ShipName;
 
-                public Product() : base("CAT_Product", "dbo")
-                {
-                    SetPrimaryKey(Product_Id);
-                }
+                public Orders() : base("Orders",  "dbo")
+                {            
+                    SetPrimaryKey(OrderID);
+                }        
             }
-        }
-    }
+}
 
 Wrting a SQL tables quaery (Select) can be a simple a this :
 
-                    var product = new Product();
-                    var price   = new Price();
-                    var vPrice  = new IntegerColumn("Cents", "Max(Prices.Price)");
+                var product     = new Product();
+                var order       = new Orders();
+                var orderDetail = new OrderDetails();
+                var totalAmount = new IntegerColumn("Total Amount", "Sum(Products.UnitPrice * OrderLines.Quantity)");
 
-                    var select = new Select(connection)
-                                   .TableAdd(product, "Products")
-                                   .TableAdd(price, "Prices")
-                                   .ColumnAdd(product.Product_Id)
-                                   .ColumnAdd(vPrice)
-                                   .Where(price.Product_Id.Equal(product.Product_Id))
-                                   .And(price.EffectiveDate
-                                   .GreaterThan(DateTime.Now - new TimeSpan(365, 0, 0, 0, 0)))
-                                   .GroupByAdd(product.Product_Id)
-                                   .OrderByAdd(OrderBy.Asc, vPrice);
+                var select = new Select(connection)
+                         .Top(10)
+                         .TableAdd(orderDetail, "OrderLines")
+                         .ColumnAdd(orderDetail.ProductId)
+                         .ColumnAdd(product.ProductName)
+                         .ColumnAdd(totalAmount)
+                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                         .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
+                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                         .GroupByAdd(orderDetail.ProductId, product.ProductName)
+                         .OrderByAdd(totalAmount, OrderBy.Desc);
 
-
-And reading the answer   
+And reading the answer :
 
         foreach (var record in select.Run())
                     {
                         foreach (var f in record.Columns) Console.Write($"{f}\t\t");
                         Console.WriteLine();
                     }
+
+The FInal result will be :
+
+        Data Base Object Mapper
+        -----------------------
+
+        Query data example:
+        =========================================
+
+        SELECT  TOP(10) 
+                "OrderLines"."ProductID" "ProductID" ,
+                "Products"."ProductName" "ProductName" ,
+                Sum(Products.UnitPrice * OrderLines.Quantity) "Total Amount" 
+        FROM 
+                "dbo"."Order Details" "OrderLines"  
+        JOIN 
+                "dbo"."Orders" "Orders"  ON ("Orders"."OrderID"="OrderLines"."OrderID") 
+        LEFT JOIN 
+                "dbo"."Products" "Products"  ON ("Products"."ProductID"="OrderLines"."ProductID")
+        WHERE 
+                ("Orders"."OrderDate">'1992-08-05T19:19:37') 
+        GROUP BY
+                "OrderLines"."ProductID","Products"."ProductName" ORDER BY Sum(Products.UnitPrice * OrderLines.Quantity) Desc
+
+        ProductID       ProductName                     Total Amount
+        ---------       -----------                     ------------
+        38              'Côte de Blaye'                 164160.5000
+        29              'Thüringer Rostbratwurst'       92347.3400
+        59              'Raclette Courdavault'          82280.0000
+        60              'Camembert Pierrot'             53618.0000
+        62              'Tarte au sucre'                53391.9000
+        56              'Gnocchi di nonna Alice'        47994.0000
+        51              'Manjimup Dried Apples'         46958.0000
+        17              'Alice Mutton'                  38142.0000
+        18              'Carnarvon Tigers'              33687.5000
+        28              'Rössle Sauerkraut'             29184.0000
+
+        10 Rows Selected.
+
+
+**Remark** :Based On **NorthWind** Sample data base 
+from : https://github.com/microsoft/sql-server-samples/blob/master/samples/databases/northwind-pubs/instnwnd.sql)
