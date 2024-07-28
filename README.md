@@ -5,11 +5,7 @@ By Gadi Toledano, 2024
 Sql Decorator is a simple project aimed to practice some of the common design patterns.
 Sql decorator is also a simple Object Relationship Management mapper to SQL tables.  
 Here an example how SQL Mapping can be easy :
-
-
-        using System;
-        using System.Collections.Generic;
-        using System.Text;
+     
         using SQLDecorator;
 
         namespace DBTables
@@ -33,7 +29,7 @@ Here an example how SQL Mapping can be easy :
                     SetPrimaryKey(OrderID);
                 }        
             }
-}
+        }
 
 Wrting a SQL tables quaery (Select) can be a simple a this :
 
@@ -64,26 +60,15 @@ And reading the answer :
 
 The FInal result will be :
 
-        Data Base Object Mapper
-        -----------------------
-
-        Query data example:
-        =========================================
-
-        SELECT  TOP(10) 
-                "OrderLines"."ProductID" "ProductID" ,
-                "Products"."ProductName" "ProductName" ,
-                Sum(Products.UnitPrice * OrderLines.Quantity) "Total Amount" 
-        FROM 
-                "dbo"."Order Details" "OrderLines"  
-        JOIN 
-                "dbo"."Orders" "Orders"  ON ("Orders"."OrderID"="OrderLines"."OrderID") 
-        LEFT JOIN 
-                "dbo"."Products" "Products"  ON ("Products"."ProductID"="OrderLines"."ProductID")
-        WHERE 
-                ("Orders"."OrderDate">'1992-08-05T19:19:37') 
-        GROUP BY
-                "OrderLines"."ProductID","Products"."ProductName" ORDER BY Sum(Products.UnitPrice * OrderLines.Quantity) Desc
+        SELECT    TOP(10) 
+                  "OrderLines"."ProductID" "ProductID" ,
+                  "Products"."ProductName" "ProductName" ,
+                  Sum(Products.UnitPrice * OrderLines.Quantity) "Total Amount" 
+        FROM      "dbo"."Order Details" "OrderLines"  
+        JOIN      "dbo"."Orders" "Orders"  ON ("Orders"."OrderID"="OrderLines"."OrderID") 
+        LEFT JOIN "dbo"."Products" "Products"  ON ("Products"."ProductID"="OrderLines"."ProductID")
+        WHERE     ("Orders"."OrderDate">'1992-08-05T19:19:37') 
+        GROUP BY  "OrderLines"."ProductID","Products"."ProductName" ORDER BY Sum(Products.UnitPrice * OrderLines.Quantity) Desc
 
         ProductID       ProductName                     Total Amount
         ---------       -----------                     ------------
