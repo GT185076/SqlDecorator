@@ -18,7 +18,6 @@ namespace SqlDecTest
             Console.ReadKey();
         }
 
-
         static void RunMssql()
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
