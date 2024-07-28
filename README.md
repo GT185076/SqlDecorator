@@ -98,7 +98,7 @@ The FInal result will be :
         18              'Carnarvon Tigers'              33687.5000
         28              'Rössle Sauerkraut'             29184.0000
 
-10 Rows Selected.
+        10 Rows Selected.
 
 
 **Remark** :Based On **NorthWind** Sample data base 
