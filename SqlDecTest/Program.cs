@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using SQLDecorator;
 using DBTables;
-using SqlDecTest.MsssqlDBTables;
 
 namespace SqlDecTest
 {
