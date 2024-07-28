@@ -35,16 +35,22 @@ namespace SqlDecTest
 
                 connection.Open();
 
-                var product = new Product();
-                var order = new Orders();
-                var vPrice = new IntegerColumn("Price", "Max(Products.UnitPrice)");
+                var product     = new Product();
+                var order       = new Orders();
+                var orderDetail = new OrderDetails();
+                var totalAmount = new IntegerColumn("Total Amount", "Sum(Products.UnitPrice * OrderLines.Quantity)");
 
                 var select = new Select(connection)
-                         .TableAdd(product, "Products")
-                         .ColumnAdd(vPrice)
+                         .Top(10)
+                         .TableAdd(orderDetail, "OrderLines")
+                         .ColumnAdd(orderDetail.ProductId)
                          .ColumnAdd(product.ProductName)
-                         .GroupByAdd(product.ProductName);
-
+                         .ColumnAdd(totalAmount)
+                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                         .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
+                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                         .GroupByAdd(orderDetail.ProductId, product.ProductName)
+                         .OrderByAdd(totalAmount, OrderBy.Desc);
 
                 Console.WriteLine(select.ToString());
 
@@ -91,8 +97,8 @@ namespace SqlDecTest
                                                    .And(cr.IsActive)
                                                    .AndNot(cr.PValue.Equal("LEON")))
                                   .And(cr.PValue.Equal("toledano"))
-                                  .Or(cr.PValue.Equal(cr.PKey))
-                                  .LeftJoinTableAdd(cr2, cr2.PKey.Equal("5"), "selfi");
+                                  .Or(cr.PValue.Equal(cr.PKey));
+                                  
 
             var selectString = select.ToString();
             Console.WriteLine(selectString);

@@ -16,7 +16,7 @@ namespace DBTables
         [ColumnName("OrderDate")]
         public DateTimeColumn OrderDate;
 
-        [ColumnName("Price")]
+        [ColumnName("ShipName")]
         public StringColumn ShipName;
 
         public Orders() : base("Orders",  "dbo")

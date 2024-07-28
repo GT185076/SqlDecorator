@@ -25,6 +25,13 @@ namespace SQLDecorator
         DateTime,
         Logical
     }
+
+    public enum JoinType
+    {
+        None,
+        Inner,
+        Left        
+    }
     public enum ColumnsSelection
     {
         None,
@@ -108,7 +115,8 @@ namespace SQLDecorator
             }
             
         }
-        public Condition LeftJoinCondition { set; get; }
+        public JoinType JoinType { internal set; get; }
+        public Condition JoinCondition { set; get; }        
         public int? OrdinalNumber { set; get; }
     }
     public abstract class TableColumn
@@ -455,7 +463,7 @@ namespace SQLDecorator
 
             return this;
         }
-        public Select LeftJoinTableAdd<T>(T Table, Condition JoinCondition, string Caption = null, ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
+        public Select TableLeftJoin<T>(T Table,string Caption, Condition JoinCondition,ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
         {
             var t = Table.GetType();
             var fa = t.GetFields();
@@ -473,9 +481,33 @@ namespace SQLDecorator
                 if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}_{Table.OrdinalNumber}");            
             }
            
-            Table.LeftJoinCondition = JoinCondition;
-            Table.LeftJoinCondition.IsJoincondition = true;
+            Table.JoinType = JoinType.Left;
+            Table.JoinCondition = JoinCondition;
             SelectedTables.Add(Table);
+            return this;
+        }
+        public Select TableJoin<T>(T Table, string Caption, Condition JoinCondition, ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
+        {
+            var t = Table.GetType();
+            var fa = t.GetFields();
+            Table.OrdinalNumber = SelectedTables.Count;
+
+            if (!string.IsNullOrEmpty(Caption))
+                Table.TableCaption = Caption;
+            else
+                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+
+            foreach (var f in fa)
+            {
+                var tc = f.GetValue(Table) as TableColumn;
+                tc.ParentTable = Table;
+                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}_{Table.OrdinalNumber}");
+            }
+
+            Table.JoinType = JoinType.Inner;
+            Table.JoinCondition = JoinCondition;         
+            SelectedTables.Add(Table);
+
             return this;
         }
         public Select Where(Condition FilterCondition)
@@ -543,7 +575,7 @@ namespace SQLDecorator
             if (SelectedTables.Count > 0) st.Append(FROM);
             foreach (var t in SelectedTables)
             {
-                if (t.LeftJoinCondition == null)
+                if (t.JoinType ==  JoinType.None)
                 {
                     if (st.Length <= FROM.Length)
                         st.Append($" \"{t.Schema}\".\"{t.TableName}\" ");
@@ -553,13 +585,25 @@ namespace SQLDecorator
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
                 }
-                else
+
+                if (t.JoinType == JoinType.Inner)
+                {
+                    st.Append($" JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+                    if (!string.IsNullOrEmpty(t._caption))
+                        st.Append($"\"{t._caption}\" ");
+
+                    var OnCondition = t.JoinCondition.ToString();
+
+                    st.Append($" ON {OnCondition} ");
+                }
+
+                if (t.JoinType == JoinType.Left)
                 {
                     st.Append($" LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 
-                    var OnCondition = t.LeftJoinCondition.ToString();
+                    var OnCondition = t.JoinCondition.ToString();
 
                     st.Append($" ON {OnCondition} ");
                 }
@@ -608,11 +652,11 @@ namespace SQLDecorator
             var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
             return runner.Run(this, _dbConnection);            
         }
-        
+
+       
     }
     public class Condition
     {
-        public bool IsJoincondition { get; set; }
         Condition _prev;
         public BooleanOperator MainOperator { get; set; }
         public ComperationOperator Operator { get; set; }
