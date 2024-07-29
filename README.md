@@ -4,6 +4,8 @@ By Gadi Toledano, 2024
 
 Sql Decorator is a simple project aimed to practice some of the common design patterns.
 Sql decorator is also a simple Object Relationship Management mapper to SQL tables.  
+
+**Example 1:**
 Here an example how SQL Mapping can be easy :
      
         using SQLDecorator;
@@ -31,7 +33,7 @@ Here an example how SQL Mapping can be easy :
             }
         }
 
-Wrting a SQL tables quaery (Select) can be a simple a this :
+Writing a SQL tables query (Select) can be a simple a this :
 
                 var product     = new Product();
                 var order       = new Orders();
@@ -85,6 +87,19 @@ The FInal result will be :
 
         10 Rows Selected.
 
+**Example 2:**
+All Columns selection and Auto columns mapping back:
+
+               var selectAll = new Select(connection)
+                         .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
+                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
+
+                foreach (var olr in selectAll.Run().Export<OrderDetails>())
+                {
+                    Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount}");
+                    Console.WriteLine();
+                }
 
 **Remark** :Based On **NorthWind** Sample data base 
 from : https://github.com/microsoft/sql-server-samples/blob/master/samples/databases/northwind-pubs/instnwnd.sql)
