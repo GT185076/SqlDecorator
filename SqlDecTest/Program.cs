@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using SQLDecorator;
 using DBTables;
+using SqlDecTest.MsssqlDBTables;
 
 namespace SqlDecTest
 {
@@ -21,7 +22,7 @@ namespace SqlDecTest
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
-            builder.DataSource = "WILGT185076-R4B";
+            builder.DataSource = Environment.GetEnvironmentVariable("COMPUTERNAME");
             builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
             builder.InitialCatalog = "NorthWind";
             builder.TrustServerCertificate = true;
@@ -32,6 +33,9 @@ namespace SqlDecTest
                 Console.WriteLine("=========================================\n");
 
                 connection.Open();
+                MsSqlMigration.Run(connection);
+
+
 
                 var product     = new Product();
                 var order       = new Orders();

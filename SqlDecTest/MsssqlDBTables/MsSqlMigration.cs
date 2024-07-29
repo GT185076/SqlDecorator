@@ -2,55 +2,83 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 
 namespace SqlDecTest.MsssqlDBTables
 {
     internal class MsSqlMigration
-    {
+    {       
+        private static MsSqlMigration _MsSqlMigration;
+
         private SqlConnection sqlConnection;
+        private SqlDataReader reader;
+        private bool            isLog;
 
-        public MsSqlMigration(SqlConnection sqlConnection)
-        {
-            this.sqlConnection = sqlConnection;
-        }
+        public static MsSqlMigration Run(SqlConnection SqlConnection,bool IsLog=false)
+        {            
+            if (_MsSqlMigration == null) 
+                _MsSqlMigration = new MsSqlMigration();
 
-        internal void Run()
-        {
-            sqlConnection.Open();
-            Ver1();
+            _MsSqlMigration.sqlConnection = SqlConnection;
+            _MsSqlMigration.isLog = IsLog;
+            _MsSqlMigration.Ver1();
+
+            return _MsSqlMigration;
         }
 
         private void Ver1()
         {
-            var Fullstatment = File.ReadAllText("MsssqlDBTables\\NorthWind.sql"); 
-            var statment = Fullstatment.Split("GO");
-           
-            foreach (var stat in statment)
-            {
-                var ss = Fullstatment.Split("goO ");
-                foreach(var s in ss)
-                        if (!s.IsNullOrEmpty())
-                            RunSql(s);
-            }                        
+            var check = "select count(*) from sysobjects where id = object_id('dbo.orders')";
+            var exists = RunSql(check,false).Trim();
+            if (exists=="1") return;
+
+            var NorthWindSeedFile = "MsssqlDBTables\\NorthWind.sql";            
+            var lines = File.ReadAllLines(NorthWindSeedFile);
+            var statement =  new StringBuilder();
+
+            foreach (var line in lines) 
+            { 
+                if (line.Trim().ToUpper()=="GO")                    
+                {
+                    if (statement.Length>0) RunSql(statement.ToString(),isLog);
+                    continue;
+                }                
+                statement.Append(line);            
+            }            
         }
 
-        private string RunSql(string statment)
+        private string RunSql(string statment,bool IsLog)
         {
-            Console.WriteLine(statment);
+            if (IsLog)
+            {
+                Console.WriteLine("Run Sql:");
+                Console.WriteLine(statment);
+            }
 
             var sf = new StringBuilder();
-            using (SqlCommand command = new SqlCommand(statment.ToString(), sqlConnection))
+
+            using (SqlCommand command = new SqlCommand(statment, sqlConnection))
             {
-                SqlDataReader reader = command.ExecuteReader();
+                reader = command.ExecuteReader();
                 while (reader.Read())
-                {
-                    sf.Append(reader.ToString());
-                }
+                       if (reader.FieldCount>0) 
+                        sf.Append(reader[0].ToString());                                    
             }
+
+            reader.Close();
+
+            if (IsLog)
+            {
+                Console.WriteLine("");
+                Console.WriteLine(sf.ToString());
+            }
+
             return sf.ToString();
+            
         }
     }
 }
