@@ -33,9 +33,7 @@ namespace SqlDecTest
                 Console.WriteLine("=========================================\n");
 
                 connection.Open();
-                MsSqlMigration.Run(connection);
-
-
+                MsSqlMigration.CheckVersionAndRun(connection);
 
                 var product = new Product();
                 var order = new Orders();
@@ -138,6 +136,8 @@ namespace SqlDecTest
             Console.WriteLine();
             Console.Write($"{select.Result.Count} Rows Selected.");
         }
+
+       
     }
     }
 

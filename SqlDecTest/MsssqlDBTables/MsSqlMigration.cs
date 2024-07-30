@@ -18,7 +18,7 @@ namespace SqlDecTest.MsssqlDBTables
         private SqlDataReader reader;
         private bool            isLog;
 
-        public static MsSqlMigration Run(SqlConnection SqlConnection,bool IsLog=false)
+        public static MsSqlMigration CheckVersionAndRun(SqlConnection SqlConnection,bool IsLog=false)
         {            
             if (_MsSqlMigration == null) 
                 _MsSqlMigration = new MsSqlMigration();

@@ -669,7 +669,7 @@ namespace SQLDecorator
         public IEnumerable<ResultRecord> Run()
         {
             string ImpKey = _dbConnection.GetType().Name;
-            var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
+            var    runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
             return runner.Run(this, _dbConnection);            
         }
 
