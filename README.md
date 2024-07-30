@@ -38,19 +38,19 @@ Writing a SQL tables query (Select) can be a simple a this :
                 var product     = new Product();
                 var order       = new Orders();
                 var orderDetail = new OrderDetails();
-                var totalAmount = new IntegerColumn("Total Amount", "Sum(Products.UnitPrice * OrderLines.Quantity)");
+                var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
 
                 var select = new Select(connection)
                          .Top(10)
                          .TableAdd(orderDetail, "OrderLines")
                          .ColumnAdd(orderDetail.ProductId)
                          .ColumnAdd(product.ProductName)
-                         .ColumnAdd(totalAmount)
+                         .ColumnAdd(totalAmount.Sum())
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
                          .GroupByAdd(orderDetail.ProductId, product.ProductName)
-                         .OrderByAdd(totalAmount, OrderBy.Desc);
+                         .OrderByAdd(totalAmount.Sum(), OrderBy.Desc);
 
 And reading the answer :
 
