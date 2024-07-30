@@ -37,22 +37,22 @@ namespace SqlDecTest
 
 
 
-                var product     = new Product();
-                var order       = new Orders();
+                var product = new Product();
+                var order = new Orders();
                 var orderDetail = new OrderDetails();
-                var totalAmount = new IntegerColumn("Total Amount", "Sum(Products.UnitPrice * OrderLines.Quantity)");
+                var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
 
                 var select = new Select(connection)
                          .Top(10)
                          .TableAdd(orderDetail, "OrderLines")
                          .ColumnAdd(orderDetail.ProductId)
                          .ColumnAdd(product.ProductName)
-                         .ColumnAdd(totalAmount)
+                         .ColumnAdd(totalAmount.Sum())
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
                          .GroupByAdd(orderDetail.ProductId, product.ProductName)
-                         .OrderByAdd(totalAmount, OrderBy.Desc);
+                         .OrderByAdd(totalAmount.Sum(), OrderBy.Desc);
 
                 Console.WriteLine(select.ToString());
 
@@ -66,6 +66,16 @@ namespace SqlDecTest
                 Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
                 Console.ReadKey();
 
+                var selectAll = new Select(connection)
+                         .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
+                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
+
+                foreach (var olr in selectAll.Run().Export<OrderDetails>())
+                {
+                    Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount}");
+                    Console.WriteLine();
+                }
             }
         }
         private static void printCaptions(Select select)

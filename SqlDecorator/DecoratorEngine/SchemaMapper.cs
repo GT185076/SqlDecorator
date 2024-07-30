@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Composer;
 
@@ -25,7 +26,15 @@ namespace SQLDecorator
         DateTime,
         Logical
     }
-
+    public enum AggregateFunction
+    {
+        None,
+        Count,
+        Sum,
+        Max,
+        Min,
+        Avg
+    }
     public enum JoinType
     {
         None,
@@ -124,17 +133,28 @@ namespace SQLDecorator
         internal bool IsValueOnly { get { return String.IsNullOrWhiteSpace(FieldName) && String.IsNullOrWhiteSpace(VirtualValue); } }
         internal bool IsVirtualValueOnly { get { return !String.IsNullOrWhiteSpace(VirtualValue); } }
         internal string _caption { get; set; }
+        internal AggregateFunction _aggregateFunction { get; set; }
         public DBTable ParentTable { get; internal set; }
         public string FieldName { get; set; }
         public string VirtualValue { get; set; }
         public string FieldFullName { get
-            { 
+            {
+                var aggregatefunction = _aggregateFunction.ToString() + "({0})";
+                string fullName;
+
                 if (IsVirtualValueOnly)
-                    return VirtualValue;
-                if ( ParentTable != null)
-                    return $"\"{ParentTable.TableCaption}\".\"{FieldName}\"";
+                    fullName = VirtualValue;
                 else
-                    return $"\"{FieldName}\"";
+                {
+                    if (ParentTable != null)
+                        fullName = $"\"{ParentTable.TableCaption}\".\"{FieldName}\"";
+                    else
+                        fullName = $"\"{FieldName}\"";
+                }
+
+                if (_aggregateFunction> AggregateFunction.None)
+                     return  fullName= string.Format(aggregatefunction, fullName);
+                else return  fullName;
             }
         }
         public string ColumnCaption
@@ -1423,8 +1443,39 @@ namespace SQLDecorator
                     _value = original._value
                 };
 
-
             return null;
+        }
+
+        static public TableColumn Count(this TableColumn original)
+        {
+            var c = original.Clone();
+            c._aggregateFunction = AggregateFunction.Count;
+            return c;
+        }
+
+        static public TableColumn Sum(this TableColumn original)
+        {
+            var c = original.Clone();
+            c._aggregateFunction = AggregateFunction.Sum;
+            return c;
+        }
+        static public TableColumn Max(this TableColumn original)
+        {
+            var c = original.Clone();
+            c._aggregateFunction = AggregateFunction.Max;
+            return c;
+        }
+        static public TableColumn Min(this TableColumn original)
+        {
+            var c = original.Clone();
+            c._aggregateFunction = AggregateFunction.Min;
+            return c;
+        }
+        static public TableColumn Avg(this TableColumn original)
+        {
+            var c = original.Clone();
+            c._aggregateFunction = AggregateFunction.Avg;
+            return c;
         }
     }
     public class ResultRecord
