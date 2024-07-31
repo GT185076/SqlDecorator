@@ -58,9 +58,11 @@ namespace SqlDecTest
 
                 foreach (var record in select.Run())
                 {
-                    foreach (var f in record.Columns) Console.Write($"{f}\t\t");
+                    foreach (var f in record.Columns)
+                            Console.Write($"{f}\t\t");
                     Console.WriteLine();
                 }
+                
                 Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
                 Console.ReadKey();
 
@@ -69,11 +71,10 @@ namespace SqlDecTest
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-                foreach (var olr in selectAll.Run().Export<OrderDetails>())
-                {
-                    Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount}");
-                    Console.WriteLine();
-                }
+                foreach (var olr in selectAll.Run().Export<OrderDetails>())                
+                        Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount} \n");
+                    
+                
             }
         }
         private static void printCaptions(Select select)

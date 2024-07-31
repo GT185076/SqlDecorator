@@ -8,8 +8,8 @@ namespace Composer
     {
         static public void Init()
         {
-            Resolver<DbProviderRunner>.Register<MsssqlSelectRunner>(typeof(SqlConnection).Name);
-            Resolver<DbProviderRunner>.Register<PostGressSelectRunner>(typeof(NpgsqlConnection).Name);
+            Resolver<DbProviderRunner>.Register<MsssqlSelectRunner>(typeof(SqlConnection).Name,true);
+            Resolver<DbProviderRunner>.Register<PostGressSelectRunner>(typeof(NpgsqlConnection).Name,true);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -1479,11 +1480,25 @@ namespace SQLDecorator
         }
     }
     public class ResultRecord
-    {       
-        public   TableColumn[] Columns { get; set; }
-        internal ResultRecord(DbDataReader Reader,TableColumn[] Columns)
-        {     
-            this.Columns = Columns;       
+    {
+        public TableColumn[] Columns { get; private set; }
+        public TableColumn this[string ColumnName]
+        {
+            get
+            {
+                return Columns.Single<TableColumn>(r => r.ColumnCaption == ColumnName);
+            }
+        }
+        public TableColumn this[int ColumnIndex]
+        {
+            get
+            {
+                return Columns[ColumnIndex];
+            }
+        }
+        internal ResultRecord(DbDataReader Reader, TableColumn[] Columns)
+        {
+            this.Columns = Columns;
             foreach (var f in Columns)
             {
                 if (f.columnType == ColumnType.Text)
@@ -1517,9 +1532,10 @@ namespace SQLDecorator
                     DateTime.TryParse(Reader[f.ColumnCaption].ToString(), out dt);
                     dtc.Value = dt;
                 }
-            }           
+            }
         }
-    }
+        
+    }  
     public static class ResultExtention
     {
         public static IEnumerable<T> Export<T>(this IEnumerable<ResultRecord> result) where T : DBTable, new()
