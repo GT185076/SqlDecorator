@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Data.Common;
 using Npgsql;
@@ -21,9 +20,9 @@ namespace SQLDecorator
             }            
         }
 
-        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, NpgsqlConnection connectionString)
+        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection Dbconnection)
         {          
-            await using (var cmd = new NpgsqlCommand(statment.ToString(), connectionString))
+            await using (var cmd = new NpgsqlCommand(statment.ToString(), Dbconnection as NpgsqlConnection))
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())

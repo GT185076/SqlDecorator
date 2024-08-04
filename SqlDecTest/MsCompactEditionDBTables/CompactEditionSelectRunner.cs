@@ -3,9 +3,10 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
+
 namespace SQLDecorator
 {
-    public class MsssqlSelectRunner : DbProviderRunner
+    public class CompactEditionSelectRunner : DbProviderRunner
     {
         public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection)
         {          
@@ -19,7 +20,7 @@ namespace SQLDecorator
                 }             
             }            
         }
-        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment,DbConnection DbConnection)
+        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection DbConnection)
         {
             await using (var cmd = new SqlCommand(statment.ToString(), DbConnection as SqlConnection))
             await using (var reader = await cmd.ExecuteReaderAsync())
