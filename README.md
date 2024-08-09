@@ -95,9 +95,9 @@ All Columns selection and Auto columns mapping back:
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-                foreach (var olr in selectAll.Run().Export<OrderDetails>())
+                foreach (var orderDetails in selectAll.Run().Export<OrderDetails>())
                 {
-                    Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount}");
+                    Console.Write($"{orderDetails.OrderID}\t{orderDetails.ProductId}\t {orderDetails.Quantity}\t{orderDetails.UnitPrice}\t{orderDetails.Discount}");
                     Console.WriteLine();
                 }
 
