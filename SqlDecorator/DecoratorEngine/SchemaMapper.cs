@@ -6,7 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Composer;
+using SQLDecorator.Composer;
 
 namespace SQLDecorator
 {
@@ -405,6 +407,8 @@ namespace SQLDecorator
         }
         List<DBTable> SelectedTables { get; set; }
         List<Condition> WhereConditions { get; set; }
+        List<Condition> HavingConditions { get; set; }
+
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnection Dbconnection)
         {
@@ -412,6 +416,7 @@ namespace SQLDecorator
             SelectedFields   = new List<TableColumn>();
             SelectedTables   = new List<DBTable>();
             WhereConditions  = new List<Condition>();
+            HavingConditions = new List<Condition>();
             FieldsDictionary = new Dictionary<string, int>();
             GroupBy          = new List<TableColumn>();
             OrderBy          = new Dictionary<TableColumn,OrderBy>();
@@ -536,11 +541,16 @@ namespace SQLDecorator
             And(FilterCondition);
             return this;
         }
+        public Select Having(Condition HavingCondition)
+        {
+            HavingCondition.GetFirst().MainOperator = BooleanOperator.And;
+            HavingCondition.Add(HavingCondition);
+            return this;
+        }
         public Select And(Condition FilterCondition)
         {
             FilterCondition.GetFirst().MainOperator = BooleanOperator.And;
             WhereConditions.Add(FilterCondition);
-
             return this;
         }
         public Select Or(Condition FilterCondition)
@@ -570,6 +580,7 @@ namespace SQLDecorator
             string TOP      = " TOP";
             string GROUPBY  = " GROUP BY";
             string ORDERBY  = " ORDER BY";
+            string HAVING   = " HAVING";
 
             StringBuilder sf = new StringBuilder();
 
@@ -632,7 +643,6 @@ namespace SQLDecorator
 
             StringBuilder sw = new StringBuilder();
             if (WhereConditions.Count > 0) sw.Append(WHERE);
-
             foreach (var wc in WhereConditions)
             {
                 if (sw.Length <= WHERE.Length)
@@ -641,9 +651,18 @@ namespace SQLDecorator
                     sw.Append($" {wc.MainOperator.ToString()} {wc.ToString()}");
             }
 
+            StringBuilder sh = new StringBuilder();
+            if (HavingConditions.Count > 0) sw.Append(HAVING);
+            foreach (var hc in HavingConditions)
+            {
+                if (sh.Length <= HAVING.Length)
+                    sh.Append($" {hc.ToString()}");
+                else
+                    sh.Append($" {hc.MainOperator.ToString()} {hc.ToString()}");
+            }
+
             StringBuilder gb = new StringBuilder();
             if (GroupBy.Count > 0) gb.Append(GROUPBY);
-
             foreach (var g in GroupBy)
             {
                 if (gb.Length <= GROUPBY.Length)
@@ -654,7 +673,6 @@ namespace SQLDecorator
 
             StringBuilder ob = new StringBuilder();
             if (OrderBy.Count > 0) ob.Append(ORDERBY);
-
             foreach (var o in OrderBy)
             {
                 if (ob.Length <= ORDERBY.Length)
@@ -673,8 +691,12 @@ namespace SQLDecorator
             var    runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
             return runner.Run(this, _dbConnection);            
         }
-
-       
+        public Task<IEnumerable<ResultRecord>> RunAsync()
+        {
+            string ImpKey = _dbConnection.GetType().Name;
+            var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
+            return runner.RunAsync(this, _dbConnection);
+        }
     }
     public class Condition
     {
@@ -910,6 +932,11 @@ namespace SQLDecorator
                 if (MainOperator == BooleanOperator.OrNot) sentes.Insert(0, " or not ");
                 return _prev.ToString(sentes);
             }
+        }
+
+        internal void Add(Condition havingCondition)
+        {
+            throw new NotImplementedException();
         }
     }
     public static class ConditionExtention

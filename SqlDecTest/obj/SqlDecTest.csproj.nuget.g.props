@@ -12,4 +12,7 @@
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\gt185076\.nuget\packages\" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgMicrosoft_SqlServer_Compact Condition=" '$(PkgMicrosoft_SqlServer_Compact)' == '' ">C:\Users\gt185076\.nuget\packages\microsoft.sqlserver.compact\4.0.8876.1</PkgMicrosoft_SqlServer_Compact>
+  </PropertyGroup>
 </Project>

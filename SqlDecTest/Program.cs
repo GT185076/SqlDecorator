@@ -3,14 +3,12 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Threading.Tasks;
 using SQLDecorator;
-using DBTables;
-using SqlDecTest.MsssqlDBTables;
 
 namespace SqlDecTest
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("Data Base Object Mapper");
             Console.WriteLine("-----------------------");
@@ -33,11 +31,11 @@ namespace SqlDecTest
                 Console.WriteLine("=========================================\n");
 
                 connection.Open();
-                MsSqlMigration.CheckVersionAndRun(connection);
+                DBTables.MsSql.MsSqlMigration.Create(connection);
 
-                var product = new Product();
-                var order = new Orders();
-                var orderDetail = new OrderDetails();
+                var product = new DBTables.MsSql.Product();
+                var order = new DBTables.MsSql.Orders();
+                var orderDetail = new DBTables.MsSql.OrderDetails();
                 var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
 
                 var select = new Select(connection)
@@ -71,23 +69,13 @@ namespace SqlDecTest
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-                foreach (var olr in selectAll.Run().Export<OrderDetails>())                
+                foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())                
                         Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount} \n");
                     
                 
             }
         }
-        private static void printCaptions(Select select)
-        {
-            Console.WriteLine();
-            foreach (var c in select.SelectedFields)
-                Console.Write(c.ColumnCaption + "\t\t");
-            Console.WriteLine();
-            foreach (var c in select.SelectedFields)
-                Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
-            Console.WriteLine();
-        }
-
+       
         static async Task RunPostGress()
         {
             var connString = "Host=localhost;Username=postgres;Password=admin1234;Database=postgres";
@@ -95,8 +83,8 @@ namespace SqlDecTest
             await using var conn = new NpgsqlConnection(connString);
             await conn.OpenAsync();
 
-            var cr = new cacheReady();
-            var cr2 = new cacheReady();
+            var cr = new DBTables.PostGres.cacheReady();
+            var cr2 = new DBTables.PostGres.cacheReady();
 
             var select = new Select(conn).TableAdd(cr, "redis")
                                   .ColumnAdd(cr.PKey)
@@ -125,9 +113,7 @@ namespace SqlDecTest
                 Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
             Console.WriteLine();
 
-            var runner = new PostGressSelectRunner();
-
-            foreach (var record in runner.Run(select, conn))
+            foreach (var record in select.Run())
             {
                 foreach (var f in record.Columns)
                     Console.Write($"{f}\t\t");
@@ -137,8 +123,16 @@ namespace SqlDecTest
             Console.WriteLine();
             Console.Write($"{select.Result.Count} Rows Selected.");
         }
-
-       
+        private static void printCaptions(Select select)
+        {
+            Console.WriteLine();
+            foreach (var c in select.SelectedFields)
+                Console.Write(c.ColumnCaption + "\t\t");
+            Console.WriteLine();
+            foreach (var c in select.SelectedFields)
+                Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
+            Console.WriteLine();
+        }
     }
     }
 

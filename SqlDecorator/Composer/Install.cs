@@ -1,6 +1,6 @@
 ﻿using Npgsql;
 using Microsoft.Data.SqlClient;
-using SQLDecorator;
+using SQLDecorator.Composer;
 
 namespace Composer
 {
