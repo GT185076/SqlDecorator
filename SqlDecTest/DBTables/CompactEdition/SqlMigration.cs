@@ -6,16 +6,16 @@ using static System.Net.WebRequestMethods;
 
 namespace DBTables.CompactEdition
 {
-    internal class SqlCompactMigration
+    internal class SqlMigration
     {
-        private static SqlCompactMigration _SqlCeMigration;
+        private static SqlMigration _SqlCeMigration;
         private string connectionString;
         public SqlCeConnection sqlConnection { get; private set; }
         private SqlCeDataReader reader;
         private bool isLog;
         private string dbFile;
 
-        private SqlCompactMigration(string dbFile, bool isLog)
+        private SqlMigration(string dbFile, bool isLog)
         {
             this.dbFile = dbFile;
             this.isLog = isLog;
@@ -23,14 +23,14 @@ namespace DBTables.CompactEdition
             sqlConnection = new SqlCeConnection(connectionString);
         }
 
-        public static SqlCompactMigration Create(string DbFile, bool IsLog = false)
+        public static SqlMigration Create(string DbFile=null, bool IsLog = false)
         {
             if (string.IsNullOrWhiteSpace(DbFile))
                 DbFile = "netcore-sqlce.sdf";
 
             if (_SqlCeMigration == null)
             {
-                _SqlCeMigration = new SqlCompactMigration(DbFile, IsLog);
+                _SqlCeMigration = new SqlMigration(DbFile, IsLog);
                 _SqlCeMigration.Ver1();
             }
             return _SqlCeMigration;

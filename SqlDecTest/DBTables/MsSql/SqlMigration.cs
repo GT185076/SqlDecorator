@@ -10,18 +10,18 @@ using Microsoft.VisualBasic;
 
 namespace DBTables.MsSql
 {
-    internal class MsSqlMigration
+    internal class SqlMigration
     {
-        private static MsSqlMigration _MsSqlMigration;
+        private static SqlMigration _MsSqlMigration;
 
         private SqlConnection sqlConnection;
         private SqlDataReader reader;
         private bool isLog;
 
-        public static MsSqlMigration Create(SqlConnection SqlConnection, bool IsLog = false)
+        public static SqlMigration Create(SqlConnection SqlConnection, bool IsLog = false)
         {
             if (_MsSqlMigration == null)
-                _MsSqlMigration = new MsSqlMigration();
+                _MsSqlMigration = new SqlMigration();
 
             _MsSqlMigration.sqlConnection = SqlConnection;
             _MsSqlMigration.isLog = IsLog;

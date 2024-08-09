@@ -12,7 +12,8 @@ namespace SqlDecTest
         {
             Console.WriteLine("Data Base Object Mapper");
             Console.WriteLine("-----------------------");
-            RunMssql();
+            RunCompactEdition();
+            //RunMssql();
             Console.ReadKey();
         }
 
@@ -31,7 +32,7 @@ namespace SqlDecTest
                 Console.WriteLine("=========================================\n");
 
                 connection.Open();
-                DBTables.MsSql.MsSqlMigration.Create(connection);
+                DBTables.MsSql.SqlMigration.Create(connection);
 
                 var product = new DBTables.MsSql.Product();
                 var order = new DBTables.MsSql.Orders();
@@ -75,7 +76,58 @@ namespace SqlDecTest
                 
             }
         }
-       
+
+        static void RunCompactEdition()
+        {
+
+            Console.WriteLine("\nQuery data example:");
+            Console.WriteLine("=========================================\n");
+
+            var connection = DBTables.CompactEdition.SqlMigration.Create().sqlConnection;
+            connection.Open();
+
+            var product = new DBTables.MsSql.Product();
+            var order = new DBTables.MsSql.Orders();
+            var orderDetail = new DBTables.MsSql.OrderDetails();
+            var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
+
+            var select = new Select(connection)
+                     .Top(10)
+                     .TableAdd(orderDetail, "OrderLines")
+                     .ColumnAdd(orderDetail.ProductId)
+                     .ColumnAdd(product.ProductName)
+                     .ColumnAdd(totalAmount.Sum())
+                     .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                     .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                     .GroupByAdd(orderDetail.ProductId, product.ProductName)
+                     .OrderByAdd(totalAmount.Sum(), OrderBy.Desc);
+
+            Console.WriteLine(select.ToString());
+
+            printCaptions(select);
+
+            foreach (var record in select.Run())
+            {
+                foreach (var f in record.Columns)
+                    Console.Write($"{f}\t\t");
+                Console.WriteLine();
+            }
+
+            Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
+            Console.ReadKey();
+
+            var selectAll = new Select(connection)
+                     .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
+                     .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
+
+            foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())
+                Console.Write($"{olr.OrderID}\t{olr.ProductId}\t {olr.Quantity}\t{olr.UnitPrice}\t{olr.Discount} \n");
+
+
+        }
+        
         static async Task RunPostGress()
         {
             var connString = "Host=localhost;Username=postgres;Password=admin1234;Database=postgres";
