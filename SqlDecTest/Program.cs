@@ -11,9 +11,8 @@ namespace SqlDecTest
         static void Main(string[] args)
         {
             Console.WriteLine("Data Base Object Mapper");
-            Console.WriteLine("-----------------------");
-            RunCompactEdition();
-            //RunMssql();
+            Console.WriteLine("-----------------------");          
+            RunMssql();
             Console.ReadKey();
         }
 
