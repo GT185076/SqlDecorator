@@ -97,7 +97,11 @@ All Columns selection and Auto columns mapping back:
 
                 foreach (var orderDetails in selectAll.Run().Export<OrderDetails>())
                 {
-                    Console.Write($"{orderDetails.OrderID}\t{orderDetails.ProductId}\t {orderDetails.Quantity}\t{orderDetails.UnitPrice}\t{orderDetails.Discount}");
+                    Console.Write($"{orderDetails.OrderID}\t
+                                    {orderDetails.ProductId}\t
+                                    {orderDetails.Quantity}\t
+                                    {orderDetails.UnitPrice}\t
+                                    {orderDetails.Discount}");
                     Console.WriteLine();
                 }
 
