@@ -175,7 +175,42 @@ namespace SQLDecorator
             }
         }
         internal object _value { get; set; }
-        internal ColumnType columnType { get; set; }
+        internal ColumnType columnType { get; set; }       
+        public string ToNameOrParameter(Select select)
+        {
+            if (IsValueOnly)
+            {
+                int paramIndex = select.parameters.Count() + 1;
+                var paramName = "@" + paramIndex.ToString();
+                var parameter = new SqlParameter(paramName, _value);
+                select.parameters.Add(parameter);
+                return $"{paramName}";
+            }
+            else
+            {
+                if (FieldFullName != null)
+                    return FieldFullName;
+                else
+                    return string.Empty;
+                /*
+                if (columnType == ColumnType.Text)
+                    return $"'{_value.ToString()}'";
+
+                if (columnType == ColumnType.Number)
+                    return $"{((decimal)_value).ToString()}";
+
+                if (columnType == ColumnType.Logical)
+                    return $"{((bool)_value).ToString()}";
+
+                if (columnType == ColumnType.Integer)
+                    return $"{((int)_value).ToString()}";
+
+                if (columnType == ColumnType.DateTime)
+                    return $"'{((DateTime)_value).ToString("s")}'";
+                */
+            }
+        }
+
         public override string ToString()
         {
             if (columnType == ColumnType.Text)
@@ -194,6 +229,7 @@ namespace SQLDecorator
                 return $"'{((DateTime)_value).ToString("s")}'";
 
             return string.Empty;
+
         }
         static public TableColumn Create(object Value)
         {
@@ -217,11 +253,12 @@ namespace SQLDecorator
                 return _value;
             }
             set
-            {
+            {               
                 _value = value;
             }
         }
         public int? OrdinalNumber { get; set; }
+        internal SqlParameter parameter { get; set; }
     }
     public class StringColumn : TableColumn
     {
@@ -408,9 +445,7 @@ namespace SQLDecorator
         List<DBTable> SelectedTables { get; set; }
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
-
-        List<SqlParameter> parameters { get; set; }
-
+        internal List<SqlParameter> parameters { get; set; }
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnection Dbconnection)
         {
@@ -423,6 +458,7 @@ namespace SQLDecorator
             GroupBy          = new List<TableColumn>();
             OrderBy          = new Dictionary<TableColumn,OrderBy>();
             Result           = new List<ResultRecord>();
+            parameters       = new List<SqlParameter>();
         }
         public Select Distict()
         {
@@ -546,18 +582,21 @@ namespace SQLDecorator
         public Select Having(Condition HavingCondition)
         {
             HavingCondition.GetFirst().MainOperator = BooleanOperator.And;
+            HavingCondition.parentSelect = this;
             HavingCondition.Add(HavingCondition);
             return this;
         }
         public Select And(Condition FilterCondition)
         {
             FilterCondition.GetFirst().MainOperator = BooleanOperator.And;
+            FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
             return this;
         }
         public Select Or(Condition FilterCondition)
         {
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Or;
+            FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
 
             return this;
@@ -565,6 +604,7 @@ namespace SQLDecorator
         public Select AndNot(Condition FilterCondition)
         {
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Not;
+            FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
             return this;
         }
@@ -702,6 +742,7 @@ namespace SQLDecorator
     }
     public class Condition
     {
+        internal Select parentSelect { get; set; }
         Condition _prev;
         public BooleanOperator MainOperator { get; set; }
         public ComperationOperator Operator { get; set; }
@@ -712,6 +753,7 @@ namespace SQLDecorator
         {
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition And(LogicalColumn logicalColumn)
@@ -719,6 +761,7 @@ namespace SQLDecorator
             Condition NextCondition = new Condition();
             NextCondition.Operator = ComperationOperator.Is;
             NextCondition.FirstOperand = logicalColumn;
+            NextCondition.parentSelect = this.parentSelect;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             return NextCondition;
@@ -727,6 +770,7 @@ namespace SQLDecorator
         {
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition Not(LogicalColumn logicalColumn)
@@ -736,6 +780,7 @@ namespace SQLDecorator
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition Is(LogicalColumn logicalColumn)
@@ -745,12 +790,14 @@ namespace SQLDecorator
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition AndNot(Condition NextCondition)
         {
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.AndNot;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition AndNot(LogicalColumn logicalColumn)
@@ -760,12 +807,14 @@ namespace SQLDecorator
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition OrNot(Condition NextCondition)
         {
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.OrNot;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition OrNot(LogicalColumn logicalColumn)
@@ -775,6 +824,7 @@ namespace SQLDecorator
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
+            NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition GetFirst()
@@ -787,8 +837,6 @@ namespace SQLDecorator
         public string ToString(StringBuilder sentes = null)
         {
             string firstOperandName =   FirstOperand?.FieldFullName;
-            string secondOperandName =  SecondOperand?.FieldFullName;
-            string thirdOperandName  =  ThirdOperand?.FieldFullName;
 
             if (sentes == null)
             {
@@ -823,97 +871,57 @@ namespace SQLDecorator
 
             if (Operator == ComperationOperator.Equal)
             {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}={SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}={secondOperandName}");
+                sentes.Insert(0, $"{firstOperandName}={SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
             if (Operator == ComperationOperator.NotEqual)
             {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}!={SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}!={secondOperandName}");
+                sentes.Insert(0, $"{firstOperandName}!={SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
             if (Operator == ComperationOperator.GreaterThan)
             {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}>{SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}>{secondOperandName}");
+                sentes.Insert(0, $"{firstOperandName}>{SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
             if (Operator == ComperationOperator.GreaterEqualThan)
             {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}>={SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}>={secondOperandName}");
+                    sentes.Insert(0, $"{firstOperandName}>={SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
             if (Operator == ComperationOperator.LessThan)
-            {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}<{SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}<{secondOperandName}");
+            {                
+                    sentes.Insert(0, $"{firstOperandName}<{SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
             if (Operator == ComperationOperator.LessEqualThan)
-            {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName}<={SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName}<=\"{secondOperandName}");
+            {                
+                    sentes.Insert(0, $"{firstOperandName}<={SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
             if (Operator == ComperationOperator.Like)
-            {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName} like {SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName} like {secondOperandName}");
+            {                
+                    sentes.Insert(0, $"{firstOperandName} like {SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
             if (Operator == ComperationOperator.NotLike)
-            {
-                if (SecondOperand.IsValueOnly)
-                    sentes.Insert(0, $"{firstOperandName} not like {SecondOperand.ToString()}");
-                else
-                    sentes.Insert(0, $"{firstOperandName} not like {secondOperandName}");
+            {                
+                    sentes.Insert(0, $"{firstOperandName} not like {SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
             if (Operator == ComperationOperator.Between)
             {
-                string statment = string.Empty;
-                if (SecondOperand.IsValueOnly)
-                    statment = $"{firstOperandName} between {SecondOperand.ToString()}";
-                else
-                    statment = $"{firstOperandName} between {secondOperandName}";
-
-                if (ThirdOperand.IsValueOnly)
-                    statment += $" and {ThirdOperand.ToString()}";
-                else
-                    statment += $" and {thirdOperandName}";
-
+                string statment = string.Empty;                
+                statment = $"{firstOperandName} between {SecondOperand.ToNameOrParameter(parentSelect)}";                
+                statment += $" and {ThirdOperand.ToNameOrParameter(parentSelect)}";                
                 sentes.Insert(0, statment);
             }
 
             if (Operator == ComperationOperator.NotBetween)
             {
                 string statment = string.Empty;
-                if (SecondOperand.IsValueOnly)
-                    statment = $"{firstOperandName}\" not between {SecondOperand.ToString()}";
-                else
-                    statment = $"{firstOperandName}\" not between {secondOperandName}";
-
-                if (ThirdOperand.IsValueOnly)
-                    statment += $" and {ThirdOperand.ToString()}";
-                else
-                    statment += $" and {thirdOperandName}";
-
+                statment = $"{firstOperandName}\" not between {SecondOperand.ToNameOrParameter(parentSelect)}";
+                statment += $" and {ThirdOperand.ToNameOrParameter(parentSelect)}";
                 sentes.Insert(0, statment);
             }
 
@@ -1003,7 +1011,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition NotEqual(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1064,7 +1071,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition LessThan(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1115,7 +1121,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition LessEqualThan(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1166,7 +1171,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition GreaterThan(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1217,7 +1221,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition Between(this StringColumn Sc, string FirstValue, string SecondValue)
         {
             var c = new Condition
@@ -1306,7 +1309,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition GreaterEqualThan(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1357,7 +1359,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition Like(this StringColumn Sc, string value)
         {
             var c = new Condition
@@ -1378,7 +1379,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
         static public Condition Not(this LogicalColumn Lc)
         {
             var c = new Condition
@@ -1398,7 +1398,6 @@ namespace SQLDecorator
 
             return c;
         }
-
         static public Condition IsNull(this TableColumn Tc)
         {
             var c = new Condition
@@ -1417,7 +1416,6 @@ namespace SQLDecorator
             };
             return c;
         }
-
     }
     static public class ColumnExtention
     {
