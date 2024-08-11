@@ -1,8 +1,7 @@
 ﻿using Npgsql;
 using Microsoft.Data.SqlClient;
-using SQLDecorator.Composer;
 
-namespace Composer
+namespace SQLDecorator.Composer
 {
     static public class Installer
     {

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Composer;
+using Microsoft.Data.SqlClient;
 using SQLDecorator.Composer;
 
 namespace SQLDecorator
@@ -409,6 +409,8 @@ namespace SQLDecorator
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
 
+        List<SqlParameter> parameters { get; set; }
+
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnection Dbconnection)
         {
@@ -689,13 +691,13 @@ namespace SQLDecorator
         {
             string ImpKey = _dbConnection.GetType().Name;
             var    runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.Run(this, _dbConnection);            
+            return runner.Run(this, _dbConnection,parameters);            
         }
         public Task<IEnumerable<ResultRecord>> RunAsync()
         {
             string ImpKey = _dbConnection.GetType().Name;
             var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.RunAsync(this, _dbConnection);
+            return runner.RunAsync(this, _dbConnection, parameters);
         }
     }
     public class Condition

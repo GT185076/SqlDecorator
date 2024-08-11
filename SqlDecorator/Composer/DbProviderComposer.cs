@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Composer
+namespace SQLDecorator.Composer
 {
     internal class Implementation
         {
