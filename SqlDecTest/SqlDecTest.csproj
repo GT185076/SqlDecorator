@@ -15,16 +15,8 @@
 			<HintPath>System.Data.SqlServerCe.dll</HintPath>
 		</Reference>
    </ItemGroup>
-	
-  <ItemGroup>
-		<PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0-preview.6.24327.6" />
-  </ItemGroup>
 
   <ItemGroup>
-		<None Update="DBTables\CompactEdition\NorthWind.Sql">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 		<None Update="DBTables\MsSql\NorthWind.Sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

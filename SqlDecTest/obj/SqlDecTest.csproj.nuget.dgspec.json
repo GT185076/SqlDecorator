@@ -108,16 +108,6 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
-          "dependencies": {
-            "Microsoft.SqlServer.Compact": {
-              "target": "Package",
-              "version": "[4.0.8876.1, )"
-            },
-            "Microsoft.Windows.Compatibility": {
-              "target": "Package",
-              "version": "[9.0.0-preview.6.24327.6, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
