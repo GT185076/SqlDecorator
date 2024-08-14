@@ -23,6 +23,7 @@ namespace SQLDecorator
     }
     public enum ColumnType
     {
+        Same,
         Text,
         Integer,
         Number,
@@ -180,10 +181,10 @@ namespace SQLDecorator
         {
             if (IsValueOnly)
             {
-                int paramIndex = select.parameters.Count() + 1;
+                int paramIndex = select.Parameters.Count() + 1;
                 var paramName = "@" + paramIndex.ToString();
                 var parameter = new SqlParameter(paramName, _value);
-                select.parameters.Add(parameter);
+                select.Parameters.Add(parameter);
                 return $"{paramName}";
             }
             else
@@ -445,7 +446,7 @@ namespace SQLDecorator
         List<DBTable> SelectedTables { get; set; }
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
-        internal List<SqlParameter> parameters { get; set; }
+        public List<SqlParameter> Parameters { get; internal set ;}
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnection Dbconnection)
         {
@@ -458,7 +459,7 @@ namespace SQLDecorator
             GroupBy          = new List<TableColumn>();
             OrderBy          = new Dictionary<TableColumn,OrderBy>();
             Result           = new List<ResultRecord>();
-            parameters       = new List<SqlParameter>();
+            Parameters       = new List<SqlParameter>();
         }
         public Select Distict()
         {
@@ -583,7 +584,7 @@ namespace SQLDecorator
         {
             HavingCondition.GetFirst().MainOperator = BooleanOperator.And;
             HavingCondition.parentSelect = this;
-            HavingCondition.Add(HavingCondition);
+            HavingConditions.Add(HavingCondition);
             return this;
         }
         public Select And(Condition FilterCondition)
@@ -616,20 +617,20 @@ namespace SQLDecorator
         string Compile()
         {
             string SELECT   = "SELECT";
-            string DISTINCT = " DISTINCT";
-            string FROM     = " FROM";
-            string WHERE    = " WHERE";
-            string TOP      = " TOP";
-            string GROUPBY  = " GROUP BY";
-            string ORDERBY  = " ORDER BY";
-            string HAVING   = " HAVING";
+            string DISTINCT = "DISTINCT";
+            string FROM     = "FROM";
+            string WHERE    = "WHERE";
+            string TOP      = "TOP";
+            string GROUPBY  = "GROUP BY";
+            string ORDERBY  = "ORDER BY";
+            string HAVING   = "HAVING";
 
             StringBuilder sf = new StringBuilder();
 
             if (SelectedFields.Count > 0) sf.Append(SELECT);         
             if (_isDistict)               sf.Append($" {DISTINCT}");
             if (_Top > 0)                 sf.Append($" {TOP}({_Top})");
-
+            sf.Append("\n");
             bool isFirst=true;
 
             foreach (var f in SelectedFields)
@@ -637,7 +638,7 @@ namespace SQLDecorator
                 if (isFirst==true)
                     sf.Append($" {f.FieldFullName} ");
                 else
-                    sf.Append(", ").Append($"{f.FieldFullName} ");
+                    sf.Append(",\n").Append($" {f.FieldFullName} ");
 
                 if (!string.IsNullOrEmpty(f.ColumnCaption))
                     sf.Append($"\"{f.ColumnCaption}\" ");
@@ -645,16 +646,18 @@ namespace SQLDecorator
                 isFirst = false;
             }
 
-            StringBuilder st = new StringBuilder();
-            if (SelectedTables.Count > 0) st.Append(FROM);
-            foreach (var t in SelectedTables)
+            StringBuilder st = new StringBuilder();           
+            foreach (var t in SelectedTables.OrderBy((x)=> x.JoinType))
             {
                 if (t.JoinType ==  JoinType.None)
                 {
-                    if (st.Length <= FROM.Length)
+                    if (st.Length == 0)
+                    {
+                        st.Append("\n").Append(FROM);
                         st.Append($" \"{t.Schema}\".\"{t.TableName}\" ");
+                    }
                     else
-                        st.Append(",").Append($"\"{t.Schema}\".\"{t.TableName}\" ");
+                        st.Append(",\n").Append($" \"{t.Schema}\".\"{t.TableName}\" ");
 
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
@@ -662,7 +665,7 @@ namespace SQLDecorator
 
                 if (t.JoinType == JoinType.Inner)
                 {
-                    st.Append($" JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+                    st.Append("\n").Append($"JOIN \"{t.Schema}\".\"{t.TableName}\" ");
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 
@@ -673,7 +676,7 @@ namespace SQLDecorator
 
                 if (t.JoinType == JoinType.Left)
                 {
-                    st.Append($" LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+                    st.Append("\n").Append($"LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 
@@ -683,47 +686,60 @@ namespace SQLDecorator
                 }
             }
 
-            StringBuilder sw = new StringBuilder();
-            if (WhereConditions.Count > 0) sw.Append(WHERE);
+            StringBuilder sw = new StringBuilder();            
             foreach (var wc in WhereConditions)
             {
-                if (sw.Length <= WHERE.Length)
+                if (sw.Length == 0)
+                {
+                    sw.Append("\n").Append(WHERE);
                     sw.Append($" {wc.ToString()}");
+                }
                 else
                     sw.Append($" {wc.MainOperator.ToString()} {wc.ToString()}");
             }
 
-            StringBuilder sh = new StringBuilder();
-            if (HavingConditions.Count > 0) sw.Append(HAVING);
+            StringBuilder sh = new StringBuilder();            
             foreach (var hc in HavingConditions)
             {
-                if (sh.Length <= HAVING.Length)
+                if (sh.Length == 0)
+                {
+                    sh.Append("\n").Append(HAVING);
                     sh.Append($" {hc.ToString()}");
+                }
                 else
                     sh.Append($" {hc.MainOperator.ToString()} {hc.ToString()}");
             }
 
-            StringBuilder gb = new StringBuilder();
-            if (GroupBy.Count > 0) gb.Append(GROUPBY);
+            StringBuilder gb = new StringBuilder();            
             foreach (var g in GroupBy)
             {
-                if (gb.Length <= GROUPBY.Length)
+                if (gb.Length == 0)
+                {
+                    gb.Append("\n").Append(GROUPBY);
                     gb.Append($" {g.FieldFullName}");
+                }
                 else
                     gb.Append($",{g.FieldFullName}");
             }
 
-            StringBuilder ob = new StringBuilder();
-            if (OrderBy.Count > 0) ob.Append(ORDERBY);
+            StringBuilder ob = new StringBuilder();            
             foreach (var o in OrderBy)
             {
-                if (ob.Length <= ORDERBY.Length)
-                    ob.Append($" {o.Key.FieldFullName} {o.Value.ToString()}");
-                else
-                    ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
+                    if (ob.Length == 0)
+                    {
+                        ob.Append("\n").Append(ORDERBY);
+                        ob.Append($" {o.Key.FieldFullName} {o.Value.ToString()}");
+                    }
+                    else
+                        ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
             }
 
-            _compliedSentes = sf.ToString() + st.ToString() + sw.ToString() + gb.ToString() +ob.ToString();
+            _compliedSentes = sf.ToString() +
+                              st.ToString() +
+                              sw.ToString() +
+                              gb.ToString() +
+                              sh.ToString() +
+                              ob.ToString();  
             _compileDone = true;
             return _compliedSentes;
         }
@@ -731,13 +747,13 @@ namespace SQLDecorator
         {
             string ImpKey = _dbConnection.GetType().Name;
             var    runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.Run(this, _dbConnection,parameters);            
+            return runner.Run(this, _dbConnection,Parameters);            
         }
         public Task<IEnumerable<ResultRecord>> RunAsync()
         {
             string ImpKey = _dbConnection.GetType().Name;
             var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.RunAsync(this, _dbConnection, parameters);
+            return runner.RunAsync(this, _dbConnection, Parameters);
         }
     }
     public class Condition
@@ -943,11 +959,7 @@ namespace SQLDecorator
                 return _prev.ToString(sentes);
             }
         }
-
-        internal void Add(Condition havingCondition)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
     public static class ConditionExtention
     {
@@ -1419,9 +1431,10 @@ namespace SQLDecorator
     }
     static public class ColumnExtention
     {
-        static public TableColumn Clone(this TableColumn original)
+        static public TableColumn Clone(this TableColumn original,ColumnType TargetType= ColumnType.Same)
         {
-            if (original.columnType == ColumnType.Text)
+            if (TargetType == ColumnType.Text || 
+                TargetType == ColumnType.Same && original.columnType == ColumnType.Text)
                 return new StringColumn(original.ColumnCaption)
                 {
                     FieldName = original.FieldName,
@@ -1431,7 +1444,8 @@ namespace SQLDecorator
                     _value = original._value                    
                 };
 
-            if (original.columnType == ColumnType.Number)
+            if (TargetType == ColumnType.Number ||
+                TargetType == ColumnType.Same && original.columnType == ColumnType.Number)
                 return new NumberColumn(original.ColumnCaption)
                 {
                     FieldName = original.FieldName,
@@ -1441,7 +1455,8 @@ namespace SQLDecorator
                     _value = original._value
                 };
 
-            if (original.columnType == ColumnType.Integer)
+            if (TargetType == ColumnType.Integer || 
+                TargetType == ColumnType.Same && original.columnType == ColumnType.Integer)
                 return new IntegerColumn(original.ColumnCaption)
                 {
                     FieldName = original.FieldName,
@@ -1451,7 +1466,8 @@ namespace SQLDecorator
                     _value = original._value
                 };
 
-            if (original.columnType == ColumnType.Logical)
+            if (TargetType == ColumnType.Logical || 
+                TargetType == ColumnType.Same && original.columnType == ColumnType.Logical)
                 return new LogicalColumn(original.ColumnCaption)
                 {
                     FieldName = original.FieldName,
@@ -1461,7 +1477,8 @@ namespace SQLDecorator
                     _value = original._value
                 };
 
-            if (original.columnType ==  ColumnType.DateTime)
+            if (TargetType == ColumnType.DateTime || 
+                TargetType == ColumnType.Same && original.columnType == ColumnType.DateTime)
                 return new DateTimeColumn(original.ColumnCaption)
                 {
                     FieldName = original.FieldName,
@@ -1474,34 +1491,34 @@ namespace SQLDecorator
             return null;
         }
 
-        static public TableColumn Count(this TableColumn original)
+        static public IntegerColumn Count(this TableColumn original)
         {
-            var c = original.Clone();
+            var c = original.Clone(ColumnType.Integer) as IntegerColumn;
             c._aggregateFunction = AggregateFunction.Count;
             return c;
         }
 
-        static public TableColumn Sum(this TableColumn original)
+        static public NumberColumn Sum(this TableColumn original)
         {
-            var c = original.Clone();
+            var c = original.Clone(ColumnType.Number) as NumberColumn;
             c._aggregateFunction = AggregateFunction.Sum;
             return c;
         }
-        static public TableColumn Max(this TableColumn original)
+        static public NumberColumn Max(this TableColumn original)
         {
-            var c = original.Clone();
+            var c = original.Clone(ColumnType.Number) as NumberColumn;
             c._aggregateFunction = AggregateFunction.Max;
             return c;
         }
-        static public TableColumn Min(this TableColumn original)
+        static public NumberColumn Min(this TableColumn original)
         {
-            var c = original.Clone();
+            var c = original.Clone(ColumnType.Number) as NumberColumn;
             c._aggregateFunction = AggregateFunction.Min;
             return c;
         }
-        static public TableColumn Avg(this TableColumn original)
+        static public NumberColumn Avg(this TableColumn original)
         {
-            var c = original.Clone();
+            var c = original.Clone(ColumnType.Number) as NumberColumn;
             c._aggregateFunction = AggregateFunction.Avg;
             return c;
         }

@@ -10,24 +10,29 @@ using Microsoft.VisualBasic;
 
 namespace DBTables.MsSql
 {
-    internal class SqlMigration
-    {
-        private static SqlMigration _MsSqlMigration;
 
-        private SqlConnection sqlConnection;
+
+    internal class MsSqlConnectionManager  
+    {
+        private static MsSqlConnectionManager _ConnectionManager;
+        public  SqlConnection SqlConnection { get; private set;}
         private SqlDataReader reader;
         private bool isLog;
 
-        public static SqlMigration Create(SqlConnection SqlConnection, bool IsLog = false)
+        public static MsSqlConnectionManager Create(string ConnectionString=null, bool IsLog = false)
         {
-            if (_MsSqlMigration == null)
-                _MsSqlMigration = new SqlMigration();
+            if (_ConnectionManager == null && ConnectionString == null) 
+                throw new ArgumentNullException();
 
-            _MsSqlMigration.sqlConnection = SqlConnection;
-            _MsSqlMigration.isLog = IsLog;
-            _MsSqlMigration.Ver1();
-
-            return _MsSqlMigration;
+            if (_ConnectionManager == null)
+            {
+                _ConnectionManager = new MsSqlConnectionManager();
+                _ConnectionManager.SqlConnection = new SqlConnection(ConnectionString);
+                _ConnectionManager.SqlConnection.Open();
+                _ConnectionManager.isLog = IsLog;
+                _ConnectionManager.Ver1();
+            }
+            return _ConnectionManager;
         }
 
         private void Ver1()
@@ -61,7 +66,7 @@ namespace DBTables.MsSql
 
             var sf = new StringBuilder();
 
-            using (SqlCommand command = new SqlCommand(statment, sqlConnection))
+            using (SqlCommand command = new SqlCommand(statment, SqlConnection))
             {
                 reader = command.ExecuteReader();
                 while (reader.Read())
