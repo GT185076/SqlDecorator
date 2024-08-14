@@ -2,43 +2,87 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
 
 namespace DBTables.MsSql
 {
-
-
-    internal class MsSqlConnectionManager  
+    public abstract class ConnectionManager
     {
-        private static MsSqlConnectionManager _ConnectionManager;
-        public  SqlConnection SqlConnection { get; private set;}
-        private SqlDataReader reader;
-        private bool isLog;
-
-        public static MsSqlConnectionManager Create(string ConnectionString=null, bool IsLog = false)
+        public DbConnection DbConnection { get; protected set; }
+        protected DbDataReader reader;
+        protected bool isLog;
+        protected List<Action> migrationActions = new List<Action>();
+        protected ConnectionManager(string ConnectionString , bool IsLog = false)
         {
-            if (_ConnectionManager == null && ConnectionString == null) 
-                throw new ArgumentNullException();
-
-            if (_ConnectionManager == null)
+            if (ConnectionString == null) throw new ArgumentNullException();    
+            else
             {
-                _ConnectionManager = new MsSqlConnectionManager();
-                _ConnectionManager.SqlConnection = new SqlConnection(ConnectionString);
-                _ConnectionManager.SqlConnection.Open();
-                _ConnectionManager.isLog = IsLog;
-                _ConnectionManager.Ver1();
+                isLog = IsLog;
+                CreateDbConnection(ConnectionString);              
             }
-            return _ConnectionManager;
+        }
+        protected abstract string RunSql(string sql);
+        protected abstract void CreateDbConnection(string ConnectionString);
+        protected void RunMigrationList()
+        {
+            foreach (var action in migrationActions) action.Invoke();
+        }
+    }
+
+    public class MsSqlConnectionManager  : ConnectionManager
+    {
+        public MsSqlConnectionManager(string ConnectionString , bool IsLog = false) :base(ConnectionString, IsLog) 
+        {         
+        }
+        protected override void CreateDbConnection(string ConnectionString)
+        {
+            DbConnection = new SqlConnection(ConnectionString);
+            DbConnection.Open();
+        }     
+        protected override string RunSql(string statment)
+        {
+            if (isLog)
+            {
+                Console.WriteLine("Run Sql:");
+                Console.WriteLine(statment);
+            }
+
+            var sf = new StringBuilder();
+
+            using (SqlCommand command = new SqlCommand(statment, DbConnection as SqlConnection))
+            {
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                    if (reader.FieldCount > 0)
+                        sf.Append(reader[0].ToString());
+            }
+
+            reader.Close();
+
+            if (isLog)
+            {
+                Console.WriteLine("");
+                Console.WriteLine(sf.ToString());
+            }
+
+            return sf.ToString();
+
         }
 
+    }
+
+    public class NorthWind : MsSqlConnectionManager
+    {
+        public NorthWind( string connectionString, bool IsLog=false) : base(connectionString, IsLog)
+        {
+            migrationActions.Add(Ver1);
+            RunMigrationList();
+        }
         private void Ver1()
         {
             var check = "select count(*) from sysobjects where id = object_id('dbo.orders')";
-            var exists = RunSql(check, false).Trim();
+            var exists = RunSql(check).Trim();
             if (exists == "1") return;
 
             var NorthWindSeedFile = "MsssqlDBTables\\NorthWind.sql";
@@ -49,41 +93,11 @@ namespace DBTables.MsSql
             {
                 if (line.Trim().ToUpper() == "GO")
                 {
-                    if (statement.Length > 0) RunSql(statement.ToString(), isLog);
+                    if (statement.Length > 0) RunSql(statement.ToString());
                     continue;
                 }
                 statement.Append(line);
             }
-        }
-
-        private string RunSql(string statment, bool IsLog)
-        {
-            if (IsLog)
-            {
-                Console.WriteLine("Run Sql:");
-                Console.WriteLine(statment);
-            }
-
-            var sf = new StringBuilder();
-
-            using (SqlCommand command = new SqlCommand(statment, SqlConnection))
-            {
-                reader = command.ExecuteReader();
-                while (reader.Read())
-                    if (reader.FieldCount > 0)
-                        sf.Append(reader[0].ToString());
-            }
-
-            reader.Close();
-
-            if (IsLog)
-            {
-                Console.WriteLine("");
-                Console.WriteLine(sf.ToString());
-            }
-
-            return sf.ToString();
-
         }
     }
 }
