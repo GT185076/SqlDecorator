@@ -192,23 +192,7 @@ namespace SQLDecorator
                 if (FieldFullName != null)
                     return FieldFullName;
                 else
-                    return string.Empty;
-                /*
-                if (columnType == ColumnType.Text)
-                    return $"'{_value.ToString()}'";
-
-                if (columnType == ColumnType.Number)
-                    return $"{((decimal)_value).ToString()}";
-
-                if (columnType == ColumnType.Logical)
-                    return $"{((bool)_value).ToString()}";
-
-                if (columnType == ColumnType.Integer)
-                    return $"{((int)_value).ToString()}";
-
-                if (columnType == ColumnType.DateTime)
-                    return $"'{((DateTime)_value).ToString("s")}'";
-                */
+                    return string.Empty;              
             }
         }
 
@@ -424,7 +408,7 @@ namespace SQLDecorator
         bool _isDistict;
         int  _Top;
         int  _fieldCount;
-        DbConnection _dbConnection;        
+        DbConnectionManager _dbConnectionManager;        
         public List<TableColumn> SelectedFields { get; private set; }
         List<TableColumn> GroupBy { get; set; }
         Dictionary<TableColumn,OrderBy> OrderBy { get; set; }
@@ -448,9 +432,9 @@ namespace SQLDecorator
         List<Condition> HavingConditions { get; set; }
         public List<SqlParameter> Parameters { get; internal set ;}
         public List<ResultRecord> Result { get; internal set;}
-        public Select(DbConnection Dbconnection)
+        public Select(DbConnectionManager DbconnectionManager)
         {
-            _dbConnection = Dbconnection;
+            _dbConnectionManager = DbconnectionManager;
             SelectedFields   = new List<TableColumn>();
             SelectedTables   = new List<DBTable>();
             WhereConditions  = new List<Condition>();
@@ -744,16 +728,12 @@ namespace SQLDecorator
             return _compliedSentes;
         }
         public IEnumerable<ResultRecord> Run()
-        {
-            string ImpKey = _dbConnection.GetType().Name;
-            var    runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.Run(this, _dbConnection,Parameters);            
+        {            
+            return _dbConnectionManager.runner.Run(this,_dbConnectionManager.DbConnection,Parameters);            
         }
         public Task<IEnumerable<ResultRecord>> RunAsync()
-        {
-            string ImpKey = _dbConnection.GetType().Name;
-            var runner = Resolver<DbProviderRunner>.Resolve(ImpKey);
-            return runner.RunAsync(this, _dbConnection, Parameters);
+        {           
+            return _dbConnectionManager.runner.RunAsync(this, _dbConnectionManager.DbConnection,Parameters);
         }
     }
     public class Condition

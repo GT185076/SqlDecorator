@@ -12,11 +12,6 @@ namespace SQLDecorator.Composer
 
     static public class Resolver<T> 
     {
-        static Resolver()
-        {
-            Installer.Init();
-        }
-
         static Dictionary<KeyValuePair<Type,string>,Implementation> _catalog   =  new Dictionary<KeyValuePair<Type, string>, Implementation > ();      
         static public void Register<ImpT>(bool SingleTone=false)
         {

@@ -36,7 +36,7 @@ namespace SqlDecTest
                 var orderDetail = new DBTables.MsSql.OrderDetails();
                 var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
 
-                var select = new Select(NW.DbConnection)
+                var select = new Select(NW)
                          .Top(10)
                          .TableAdd(orderDetail, "OrderLines")
                          .ColumnAdd(orderDetail.ProductId)
@@ -61,7 +61,7 @@ namespace SqlDecTest
                 Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
                 Console.ReadKey();
 
-                var selectAll = new Select(NW.DbConnection)
+                var selectAll = new Select(NW)
                          .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
                          .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                          .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
