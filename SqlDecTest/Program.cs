@@ -18,62 +18,61 @@ namespace SqlDecTest
         }
         static void RunMssql()
         {
+
+            Console.WriteLine("\nQuery data example:");
+            Console.WriteLine("=========================================\n");
+
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             builder.DataSource = Environment.GetEnvironmentVariable("COMPUTERNAME");
             builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
             builder.InitialCatalog = "NorthWind";
             builder.TrustServerCertificate = true;
 
-            var NW = new NorthWind(builder.ConnectionString);
+            var northWind = new NorthWind(builder.ConnectionString);                     
 
-            using (NW.DbConnection)
+            var product     = new Product();
+            var order       = new Orders();
+            var orderDetail = new OrderDetails();
+            var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
+
+            var select = new Select(northWind)
+                     .Top(10)
+                     .TableAdd(orderDetail, "OrderLines")
+                     .ColumnAdd(orderDetail.ProductId)
+                     .ColumnAdd(product.ProductName)
+                     .ColumnAdd(totalAmount.Sum())
+                     .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                     .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                     .GroupByAdd(orderDetail.ProductId, product.ProductName)
+                     .OrderByAdd(totalAmount.Sum(), OrderBy.Desc)
+                     .Having(product.ProductId.Count().GreaterThan(10));
+
+            printCaptions(select);
+
+            foreach (var record in select.Run())
             {
-                Console.WriteLine("\nQuery data example:");
-                Console.WriteLine("=========================================\n");
-
-                var product = new DBTables.MsSql.Product();
-                var order = new DBTables.MsSql.Orders();
-                var orderDetail = new DBTables.MsSql.OrderDetails();
-                var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
-
-                var select = new Select(NW)
-                         .Top(10)
-                         .TableAdd(orderDetail, "OrderLines")
-                         .ColumnAdd(orderDetail.ProductId)
-                         .ColumnAdd(product.ProductName)
-                         .ColumnAdd(totalAmount.Sum())
-                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
-                         .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
-                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
-                         .GroupByAdd(orderDetail.ProductId, product.ProductName)
-                         .OrderByAdd(totalAmount.Sum(), OrderBy.Desc)
-                         .Having(product.ProductId.Count().GreaterThan(10));
-
-                printCaptions(select);
-
-                foreach (var record in select.Run())
-                {
-                    foreach (var f in record.Columns)
-                        Console.Write($"{f}\t\t");
-                    Console.WriteLine();
-                }
-
-                Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
-                Console.ReadKey();
-
-                var selectAll = new Select(NW)
-                         .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
-                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
-                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
-
-                foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())
-                    Console.Write(
-                        $"{olr.OrderID}\t" +
-                        $"{olr.ProductId}\t" +
-                        $"{olr.Quantity}\t" +
-                        $"{olr.UnitPrice}\t" +
-                        $"{olr.Discount} \n");
+                foreach (var f in record.Columns)
+                    Console.Write($"{f}\t\t");
+                Console.WriteLine();
             }
+
+            Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
+            Console.ReadKey();
+
+            var selectAll = new Select(northWind)
+                     .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
+                     .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
+
+            foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())
+                Console.Write(
+                    $"{olr.OrderID}\t" +
+                    $"{olr.ProductId}\t" +
+                    $"{olr.Quantity}\t" +
+                    $"{olr.UnitPrice}\t" +
+                    $"{olr.Discount} \n");
+
         }
 
             private static void printCaptions(Select selectCmd)
