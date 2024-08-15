@@ -9,12 +9,12 @@ namespace DBTables.MsSql
 {
     public class NorthWind : MsSqlConnectionManager
     {
-        public NorthWind( string connectionString, bool IsLog=false) : base(connectionString, IsLog)
+        public NorthWind(string ConnectionString, bool IsLog = false) : base(ConnectionString, IsLog)
         {
             migrationActions.Add(Ver1);
             RunMigrationList();
         }
-        private void Ver1()
+        protected override void Ver1()
         {
             var check = "select count(*) from sysobjects where id = object_id('dbo.orders')";
             var exists = RunSql(check).Trim();

@@ -37,7 +37,7 @@ namespace SQLDecorator.Composer
         }
     }
 
-    public class MsSqlConnectionManager  : DbConnectionManager
+    public abstract class MsSqlConnectionManager  : DbConnectionManager
     {
         public MsSqlConnectionManager(string ConnectionString , bool IsLog = false) :base(ConnectionString, IsLog) 
         {
@@ -78,10 +78,10 @@ namespace SQLDecorator.Composer
             return sf.ToString();
 
         }
-
+        protected abstract void Ver1();
     }
 
-    public class PostGressConnectionManager : DbConnectionManager
+    public abstract class PostGressConnectionManager : DbConnectionManager
     {
         public PostGressConnectionManager(string ConnectionString, bool IsLog = false) : base(ConnectionString, IsLog)
         {
@@ -122,6 +122,6 @@ namespace SQLDecorator.Composer
             return sf.ToString();
 
         }
-
+        protected abstract void Ver1();
     }
 }
