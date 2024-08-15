@@ -85,7 +85,7 @@ namespace DBTables.MsSql
             var exists = RunSql(check).Trim();
             if (exists == "1") return;
 
-            var NorthWindSeedFile = "MsssqlDBTables\\NorthWind.sql";
+            var NorthWindSeedFile = "DBTables\\Mssql\\NorthWind.sql";
             var lines = File.ReadAllLines(NorthWindSeedFile);
             var statement = new StringBuilder();
 
@@ -94,9 +94,10 @@ namespace DBTables.MsSql
                 if (line.Trim().ToUpper() == "GO")
                 {
                     if (statement.Length > 0) RunSql(statement.ToString());
+                    statement = new StringBuilder();
                     continue;
                 }
-                statement.Append(line);
+                statement.Append(line).Append("\n");
             }
         }
     }
