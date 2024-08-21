@@ -9,12 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SqlDecorator\SQLDecorator.csproj" />
   </ItemGroup>
-	
-   <ItemGroup>
-		<Reference Include="System.Data.SqlServerCe">
-			<HintPath>System.Data.SqlServerCe.dll</HintPath>
-		</Reference>
-   </ItemGroup>
 
   <ItemGroup>
 		<None Update="DBTables\MsSql\NorthWind.Sql">
