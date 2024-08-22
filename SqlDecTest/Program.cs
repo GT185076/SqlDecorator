@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using SQLDecorator;
 using DBTables.MsSql;
+using System.Text;
 
 namespace SqlDecTest
 {
@@ -58,8 +59,8 @@ namespace SqlDecTest
             }
 
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
-            Console.ReadKey();
 
+            Console.ReadKey();
             var selectAll = new Select(northWind)
                      .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
@@ -73,26 +74,27 @@ namespace SqlDecTest
                     $"{olr.UnitPrice}\t" +
                     $"{olr.Discount} \n");
 
+
+            Console.ReadKey();
+            var order2 = new Orders();
+            var selectOrder = new Select(northWind).TableAdd(order2, null, ColumnsSelection.All);
+            printCaptions(selectOrder);
+
+            foreach (var or in selectOrder.Run().Export<DBTables.MsSql.Orders>())
+                    Console.WriteLine(or.FieldsValuesToString());
+
+            Console.ReadKey();
         }
 
             private static void printCaptions(Select selectCmd)
             {
-
                 Console.WriteLine(selectCmd.ToString());
                 Console.WriteLine();
-                foreach( var p in selectCmd.Parameters)
-                        Console.WriteLine($"{p.ToString()}\t = {p.Value.ToString()}");
-                Console.WriteLine();
-
-                foreach (var c in selectCmd.SelectedFields)
-                    Console.Write(c.ColumnCaption + "\t\t");
-                Console.WriteLine();
-                foreach (var c in selectCmd.SelectedFields)
-                    Console.Write(string.Empty.PadLeft(c.ColumnCaption.Length, '-') + "\t\t");
-                Console.WriteLine();
+                Console.WriteLine(selectCmd.CaptionsToString());
+                Console.WriteLine();                
             }
 
-        }
+    }
     }
 
 

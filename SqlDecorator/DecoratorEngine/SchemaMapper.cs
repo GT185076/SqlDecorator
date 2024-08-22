@@ -92,13 +92,11 @@ namespace SQLDecorator
                 _caption = value;
             }
         }
-        public string[] PrimaryKey { private set; get; }
-        public string[] SetPrimaryKey(params TableColumn[] FiledsNames)
-        {
-            List<string> pkList = new List<string>();
-            foreach (var fn in FiledsNames)
-                pkList.Add(fn.FieldName);
-            PrimaryKey = pkList.ToArray();
+        public TableColumn[] PrimaryKey { private set; get; }
+        public TableColumn[] SelectedFields { private set; get; }
+        public TableColumn[] SetPrimaryKey(params TableColumn[] FiledsNames)
+        {           
+            PrimaryKey = FiledsNames;
             return PrimaryKey;
         }
         public DBTable(string TableName)
@@ -115,22 +113,40 @@ namespace SQLDecorator
         private void createColumnsInstance(DBTable dBTable)
         {
             var tc = dBTable.GetType();          
-            var AllFields = tc.GetFields(BindingFlags.Instance | BindingFlags.Public);
-           
+            var AllFields = tc.GetFields(BindingFlags.Instance | BindingFlags.Public);          
+            SelectedFields = new TableColumn[AllFields.Length];
+            var fieldIndex = 0;
+
             foreach (var field in AllFields)
-            {                                
-                if (field.GetValue(dBTable) != null) break;
-                var columnName = field.GetCustomAttributes(typeof(ColumnNameAttribute), true).FirstOrDefault() as ColumnNameAttribute;
-                var constractor = field.FieldType.GetConstructor(new Type[] { typeof(string) });               
-                var newColumn = constractor.Invoke( new string[] { columnName.ColumnName}) as TableColumn;                
-                if (newColumn != null)
-                    field.SetValue(dBTable, newColumn);
+            {
+                var actualfield = field.GetValue(dBTable);
+                if (actualfield != null)
+                {
+                    SelectedFields[fieldIndex] = actualfield as TableColumn;                 
+                }
+                else
+                {
+                    var columnName = field.GetCustomAttributes(typeof(ColumnNameAttribute), true).FirstOrDefault() as ColumnNameAttribute;
+                    var constractor = field.FieldType.GetConstructor(new Type[] { typeof(string) });
+                    var newColumn = constractor.Invoke(new string[] { columnName.ColumnName }) as TableColumn;
+                    if (newColumn != null)
+                        field.SetValue(dBTable, newColumn);
+                    SelectedFields[fieldIndex] = newColumn as TableColumn;
+                }
+                fieldIndex++;
             }
             
         }
         public JoinType JoinType { internal set; get; }
         public Condition JoinCondition { set; get; }        
         public int? OrdinalNumber { set; get; }
+        public string FieldsValuesToString()
+        {
+            var fieldsValues = new StringBuilder();
+            foreach (var c in SelectedFields)
+                fieldsValues.Append(c.ToString()).Append("\t");
+            return fieldsValues.ToString();
+        }
     }
     public abstract class TableColumn
     {
@@ -195,26 +211,26 @@ namespace SQLDecorator
                     return string.Empty;              
             }
         }
-
         public override string ToString()
         {
-            if (columnType == ColumnType.Text)
-                return $"'{_value.ToString()}'";
+            if (_value != null)
+            {
+                if (columnType == ColumnType.Text)
+                    return $"'{_value.ToString()}'";
 
-            if (columnType == ColumnType.Number)
-                return $"{((decimal)_value).ToString()}";
+                if (columnType == ColumnType.Number)
+                    return $"{((decimal)_value).ToString()}";
 
-            if (columnType == ColumnType.Logical)
-                return $"{((bool)_value).ToString()}";
+                if (columnType == ColumnType.Logical)
+                    return $"{((bool)_value).ToString()}";
 
-            if (columnType == ColumnType.Integer)
-                return $"{((int)_value).ToString()}";
+                if (columnType == ColumnType.Integer)
+                    return $"{((int)_value).ToString()}";
 
-            if (columnType == ColumnType.DateTime)
-                return $"'{((DateTime)_value).ToString("s")}'";
-
-            return string.Empty;
-
+                if (columnType == ColumnType.DateTime)
+                    return $"'{((DateTime)_value).ToString("s")}'";
+            }
+            return null;
         }
         static public TableColumn Create(object Value)
         {
@@ -330,14 +346,12 @@ namespace SQLDecorator
             }
             columnType = ColumnType.Number;
         }
-
         public NumberColumn(string Caption, string VirtualValue)
         {
             this.ColumnCaption = Caption;
             columnType = ColumnType.Number;
             this.VirtualValue = VirtualValue;
         }
-
     }
     public class IntegerColumn : TableColumn
     {
@@ -362,7 +376,6 @@ namespace SQLDecorator
             }
             columnType = ColumnType.Number;
         }
-
         public IntegerColumn(string Caption ,string VirtualValue)
         {
             this.ColumnCaption = Caption;
@@ -505,7 +518,7 @@ namespace SQLDecorator
             {
                 var tc = f.GetValue(Table) as TableColumn;                
                 tc.ParentTable = Table;
-                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.FieldName}_{Table.OrdinalNumber}");
+                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.ColumnCaption}_{Table.OrdinalNumber}");
             }                     
 
             SelectedTables.Add(Table);
@@ -735,6 +748,18 @@ namespace SQLDecorator
         {           
             return _dbConnectionManager.runner.RunAsync(this, _dbConnectionManager.DbConnection,Parameters);
         }
+      
+        public string CaptionsToString()
+        {
+            var captions = new StringBuilder();
+            foreach (var c in SelectedFields)
+                captions.Append(c.ColumnCaption).Append("\t");
+            captions.AppendLine();
+            foreach (var c in SelectedFields)
+                captions.Append(string.Empty.PadLeft(c.ColumnCaption.Length, '-')).Append("\t");
+            return captions.ToString();
+        }
+
     }
     public class Condition
     {
@@ -1525,6 +1550,7 @@ namespace SQLDecorator
             this.Columns = Columns;
             foreach (var f in Columns)
             {
+             
                 if (f.columnType == ColumnType.Text)
                 {
                     var sc = f as StringColumn;
@@ -1587,6 +1613,14 @@ namespace SQLDecorator
                             {
                                 nc._value = c._value;
                                 mc.OrdinalNumber = i;
+                            }
+                            if (c.IsVirtualValueOnly && c.ParentTable.TableName == mapRecord.TableName )
+                            {
+                                if (mc.FieldFullName == c.FieldFullName)
+                                {
+                                    nc._value = c._value;
+                                    mc.OrdinalNumber = i;
+                                }
                             }
                             i++;
                         }
