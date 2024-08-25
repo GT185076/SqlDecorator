@@ -664,6 +664,14 @@ namespace SQLDecorator
                 captions.Append(string.Empty.PadLeft(c.ColumnCaption.Length, '-')).Append("\t");
             return captions.ToString();
         }
+        public string ParametersToString()
+        {
+            if (!_compileDone) Compile();
+            var param = new StringBuilder();
+            foreach (var p in Parameters)
+                param.Append(p.ToString()).Append(" = ").Append(p.Value).Append("\n");            
+            return param.ToString();
+        }
         string Compile()
         {
             string SELECT = "SELECT";

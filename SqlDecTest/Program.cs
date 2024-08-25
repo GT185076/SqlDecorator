@@ -88,10 +88,12 @@ namespace SqlDecTest
 
             private static void printCaptions(Select selectCmd)
             {
-                Console.WriteLine(selectCmd.ToString());
-                Console.WriteLine();
-                Console.WriteLine(selectCmd.CaptionsToString());
-                Console.WriteLine();                
+            Console.WriteLine(selectCmd.ParametersToString());
+            Console.WriteLine();
+            Console.WriteLine(selectCmd.ToString());
+            Console.WriteLine();              
+            Console.WriteLine(selectCmd.CaptionsToString());            
+            Console.WriteLine();                                 
             }
 
     }
