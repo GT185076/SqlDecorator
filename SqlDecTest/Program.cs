@@ -81,7 +81,7 @@ namespace SqlDecTest
             printCaptions(selectOrder);
 
             foreach (var or in selectOrder.Run().Export<DBTables.MsSql.Orders>())
-                    Console.WriteLine(or.FieldsValuesToString());
+                    Console.WriteLine(or.ToString());
 
             Console.ReadKey();
         }

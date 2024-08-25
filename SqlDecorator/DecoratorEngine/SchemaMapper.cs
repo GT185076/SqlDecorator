@@ -73,7 +73,32 @@ namespace SQLDecorator
         Asc,
         Desc        
     }
-    public abstract class DBTable
+    public abstract class Record
+    {
+        public TableColumn[] Columns { get; internal set; }
+        public TableColumn this[string ColumnName]
+        {
+            get
+            {
+                return Columns.Single<TableColumn>(r => r.ColumnCaption == ColumnName);
+            }
+        }
+        public TableColumn this[int ColumnIndex]
+        {
+            get
+            {
+                return Columns[ColumnIndex];
+            }
+        }
+        public override string ToString()
+        {
+            var fieldsValues = new StringBuilder();
+            foreach (var c in Columns)
+                fieldsValues.Append(c.ToString()).Append("\t");
+            return fieldsValues.ToString();
+        }
+    }
+    public abstract class DBTable : Record
     {
         internal string _caption { get; set; }
         public string Schema { private set; get; }
@@ -92,8 +117,7 @@ namespace SQLDecorator
                 _caption = value;
             }
         }
-        public TableColumn[] PrimaryKey { private set; get; }
-        public TableColumn[] SelectedFields { private set; get; }
+        public TableColumn[] PrimaryKey { private set; get; }   
         public TableColumn[] SetPrimaryKey(params TableColumn[] FiledsNames)
         {           
             PrimaryKey = FiledsNames;
@@ -114,7 +138,7 @@ namespace SQLDecorator
         {
             var tc = dBTable.GetType();          
             var AllFields = tc.GetFields(BindingFlags.Instance | BindingFlags.Public);          
-            SelectedFields = new TableColumn[AllFields.Length];
+            Columns = new TableColumn[AllFields.Length];
             var fieldIndex = 0;
 
             foreach (var field in AllFields)
@@ -122,7 +146,7 @@ namespace SQLDecorator
                 var actualfield = field.GetValue(dBTable);
                 if (actualfield != null)
                 {
-                    SelectedFields[fieldIndex] = actualfield as TableColumn;                 
+                    Columns[fieldIndex] = actualfield as TableColumn;                 
                 }
                 else
                 {
@@ -131,7 +155,7 @@ namespace SQLDecorator
                     var newColumn = constractor.Invoke(new string[] { columnName.ColumnName }) as TableColumn;
                     if (newColumn != null)
                         field.SetValue(dBTable, newColumn);
-                    SelectedFields[fieldIndex] = newColumn as TableColumn;
+                    Columns[fieldIndex] = newColumn as TableColumn;
                 }
                 fieldIndex++;
             }
@@ -140,13 +164,7 @@ namespace SQLDecorator
         public JoinType JoinType { internal set; get; }
         public Condition JoinCondition { set; get; }        
         public int? OrdinalNumber { set; get; }
-        public string FieldsValuesToString()
-        {
-            var fieldsValues = new StringBuilder();
-            foreach (var c in SelectedFields)
-                fieldsValues.Append(c.ToString()).Append("\t");
-            return fieldsValues.ToString();
-        }
+       
     }
     public abstract class TableColumn
     {
@@ -1528,29 +1546,14 @@ namespace SQLDecorator
             return c;
         }
     }
-    public class ResultRecord
+    public class ResultRecord : Record
     {
-        public TableColumn[] Columns { get; private set; }
-        public TableColumn this[string ColumnName]
-        {
-            get
-            {
-                return Columns.Single<TableColumn>(r => r.ColumnCaption == ColumnName);
-            }
-        }
-        public TableColumn this[int ColumnIndex]
-        {
-            get
-            {
-                return Columns[ColumnIndex];
-            }
-        }
         internal ResultRecord(DbDataReader Reader, TableColumn[] Columns)
         {
             this.Columns = Columns;
             foreach (var f in Columns)
             {
-             
+
                 if (f.columnType == ColumnType.Text)
                 {
                     var sc = f as StringColumn;
@@ -1584,8 +1587,7 @@ namespace SQLDecorator
                 }
             }
         }
-        
-    }  
+    }
     public static class ResultExtention
     {
         public static IEnumerable<T> Export<T>(this IEnumerable<ResultRecord> result) where T : DBTable, new()
