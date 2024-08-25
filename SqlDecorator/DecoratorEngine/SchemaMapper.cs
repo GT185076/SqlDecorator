@@ -440,15 +440,15 @@ namespace SQLDecorator
         int  _Top;
         int  _fieldCount;
         DbConnectionManager _dbConnectionManager;        
-        public List<TableColumn> SelectedFields { get; private set; }
+       
         List<TableColumn> GroupBy { get; set; }
         Dictionary<TableColumn,OrderBy> OrderBy { get; set; }
         Dictionary<string,int> FieldsDictionary { get; set; }
-        public ResultRecord FeatchNextRecord(DbDataReader reader)
+        internal ResultRecord FeatchNextRecord(DbDataReader reader)
         {
             var record = new TableColumn[_fieldCount];
             int i = 0;
-            foreach (var f in SelectedFields)
+            foreach (var f in Columns)
             {
                 record[i] = (f.Clone());
                 i++;
@@ -461,12 +461,13 @@ namespace SQLDecorator
         List<DBTable> SelectedTables { get; set; }
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
+        public List<TableColumn> Columns { get; private set; }
         public List<SqlParameter> Parameters { get; internal set ;}
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnectionManager DbconnectionManager)
         {
             _dbConnectionManager = DbconnectionManager;
-            SelectedFields   = new List<TableColumn>();
+            Columns   = new List<TableColumn>();
             SelectedTables   = new List<DBTable>();
             WhereConditions  = new List<Condition>();
             HavingConditions = new List<Condition>();
@@ -478,51 +479,59 @@ namespace SQLDecorator
         }
         public Select Distict()
         {
+            _compileDone = false;
             _isDistict = true;
             return this;
         }
         public Select Top(int RowsCount)
         {
+            _compileDone = false;
             _Top = RowsCount;
             return this;
         }
         public Select ColumnAdd(TableColumn tc, string Caption = null)
-        {            
+        {
+            _compileDone = false;
             if (!string.IsNullOrEmpty(Caption)) 
                 tc.ColumnCaption = Caption;
            
-            SelectedFields.Add(tc);
+            Columns.Add(tc);
             FieldsDictionary.Add(tc.ColumnCaption, _fieldCount++);
             return this;
         }
         public Select ColumnAdd(params TableColumn[] tc)
         {
+            _compileDone = false;
             foreach (var c in tc)
             {
-                SelectedFields.Add(c);
+                Columns.Add(c);
                 FieldsDictionary.Add(c.ColumnCaption, _fieldCount++);
             }
             return this;
         }
         public Select OrderByAdd(TableColumn tc, OrderBy By= SQLDecorator.OrderBy.Asc)
         {
+            _compileDone = false;
             OrderBy.Add(tc,By);
             return this;
         }
         public Select OrderByAdd(OrderBy By,params TableColumn[] tc)
         {
-            foreach( var c in tc)
+            _compileDone = false;
+            foreach ( var c in tc)
                     OrderBy.Add(c, By);
             return this;
         }
         public Select GroupByAdd(params TableColumn[] tc)
         {
+            _compileDone = false;
             foreach (var c  in tc)
                     GroupBy.Add(c);
             return this;
         }
         public Select TableAdd<T>(T Table, string Caption = null , ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
         {
+            _compileDone = false;
             var t = Table.GetType();
             var fa = t.GetFields(BindingFlags.Instance | BindingFlags.Public);
             Table.OrdinalNumber = SelectedTables.Count;
@@ -545,6 +554,7 @@ namespace SQLDecorator
         }
         public Select TableLeftJoin<T>(T Table,string Caption, Condition JoinCondition,ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
         {
+            _compileDone = false;
             var t = Table.GetType();
             var fa = t.GetFields();
             Table.OrdinalNumber = SelectedTables.Count;
@@ -568,6 +578,7 @@ namespace SQLDecorator
         }
         public Select TableJoin<T>(T Table, string Caption, Condition JoinCondition, ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
         {
+            _compileDone = false;
             var t = Table.GetType();
             var fa = t.GetFields();
             Table.OrdinalNumber = SelectedTables.Count;
@@ -592,11 +603,13 @@ namespace SQLDecorator
         }
         public Select Where(Condition FilterCondition)
         {
+            _compileDone = false;
             And(FilterCondition);
             return this;
         }
         public Select Having(Condition HavingCondition)
         {
+            _compileDone = false;
             HavingCondition.GetFirst().MainOperator = BooleanOperator.And;
             HavingCondition.parentSelect = this;
             HavingConditions.Add(HavingCondition);
@@ -604,6 +617,7 @@ namespace SQLDecorator
         }
         public Select And(Condition FilterCondition)
         {
+            _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.And;
             FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
@@ -611,14 +625,15 @@ namespace SQLDecorator
         }
         public Select Or(Condition FilterCondition)
         {
+            _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Or;
             FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
-
             return this;
         }
         public Select AndNot(Condition FilterCondition)
         {
+            _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Not;
             FilterCondition.parentSelect = this;
             WhereConditions.Add(FilterCondition);
@@ -628,29 +643,49 @@ namespace SQLDecorator
         {
             if (!_compileDone) Compile();
             return _compliedSentes;
+        }    
+        public IEnumerable<ResultRecord> Run()
+        {
+            if (!_compileDone) Compile();
+            return _dbConnectionManager.runner.Run(this,_dbConnectionManager.DbConnection,Parameters);            
+        }
+        public Task<IEnumerable<ResultRecord>> RunAsync()
+        {
+            if (!_compileDone) Compile();
+            return _dbConnectionManager.runner.RunAsync(this, _dbConnectionManager.DbConnection,Parameters);
+        }   
+        public string CaptionsToString()
+        {
+            var captions = new StringBuilder();
+            foreach (var c in Columns)
+                captions.Append(c.ColumnCaption).Append("\t");
+            captions.AppendLine();
+            foreach (var c in Columns)
+                captions.Append(string.Empty.PadLeft(c.ColumnCaption.Length, '-')).Append("\t");
+            return captions.ToString();
         }
         string Compile()
         {
-            string SELECT   = "SELECT";
+            string SELECT = "SELECT";
             string DISTINCT = "DISTINCT";
-            string FROM     = "FROM";
-            string WHERE    = "WHERE";
-            string TOP      = "TOP";
-            string GROUPBY  = "GROUP BY";
-            string ORDERBY  = "ORDER BY";
-            string HAVING   = "HAVING";
+            string FROM = "FROM";
+            string WHERE = "WHERE";
+            string TOP = "TOP";
+            string GROUPBY = "GROUP BY";
+            string ORDERBY = "ORDER BY";
+            string HAVING = "HAVING";
 
             StringBuilder sf = new StringBuilder();
 
-            if (SelectedFields.Count > 0) sf.Append(SELECT);         
-            if (_isDistict)               sf.Append($" {DISTINCT}");
-            if (_Top > 0)                 sf.Append($" {TOP}({_Top})");
+            if (Columns.Count > 0) sf.Append(SELECT);
+            if (_isDistict) sf.Append($" {DISTINCT}");
+            if (_Top > 0) sf.Append($" {TOP}({_Top})");
             sf.Append("\n");
-            bool isFirst=true;
+            bool isFirst = true;
 
-            foreach (var f in SelectedFields)
+            foreach (var f in Columns)
             {
-                if (isFirst==true)
+                if (isFirst == true)
                     sf.Append($" {f.FieldFullName} ");
                 else
                     sf.Append(",\n").Append($" {f.FieldFullName} ");
@@ -661,10 +696,10 @@ namespace SQLDecorator
                 isFirst = false;
             }
 
-            StringBuilder st = new StringBuilder();           
-            foreach (var t in SelectedTables.OrderBy((x)=> x.JoinType))
+            StringBuilder st = new StringBuilder();
+            foreach (var t in SelectedTables.OrderBy((x) => x.JoinType))
             {
-                if (t.JoinType ==  JoinType.None)
+                if (t.JoinType == JoinType.None)
                 {
                     if (st.Length == 0)
                     {
@@ -701,7 +736,7 @@ namespace SQLDecorator
                 }
             }
 
-            StringBuilder sw = new StringBuilder();            
+            StringBuilder sw = new StringBuilder();
             foreach (var wc in WhereConditions)
             {
                 if (sw.Length == 0)
@@ -713,7 +748,7 @@ namespace SQLDecorator
                     sw.Append($" {wc.MainOperator.ToString()} {wc.ToString()}");
             }
 
-            StringBuilder sh = new StringBuilder();            
+            StringBuilder sh = new StringBuilder();
             foreach (var hc in HavingConditions)
             {
                 if (sh.Length == 0)
@@ -725,7 +760,7 @@ namespace SQLDecorator
                     sh.Append($" {hc.MainOperator.ToString()} {hc.ToString()}");
             }
 
-            StringBuilder gb = new StringBuilder();            
+            StringBuilder gb = new StringBuilder();
             foreach (var g in GroupBy)
             {
                 if (gb.Length == 0)
@@ -737,16 +772,16 @@ namespace SQLDecorator
                     gb.Append($",{g.FieldFullName}");
             }
 
-            StringBuilder ob = new StringBuilder();            
+            StringBuilder ob = new StringBuilder();
             foreach (var o in OrderBy)
             {
-                    if (ob.Length == 0)
-                    {
-                        ob.Append("\n").Append(ORDERBY);
-                        ob.Append($" {o.Key.FieldFullName} {o.Value.ToString()}");
-                    }
-                    else
-                        ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
+                if (ob.Length == 0)
+                {
+                    ob.Append("\n").Append(ORDERBY);
+                    ob.Append($" {o.Key.FieldFullName} {o.Value.ToString()}");
+                }
+                else
+                    ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
             }
 
             _compliedSentes = sf.ToString() +
@@ -754,30 +789,10 @@ namespace SQLDecorator
                               sw.ToString() +
                               gb.ToString() +
                               sh.ToString() +
-                              ob.ToString();  
+                              ob.ToString();
             _compileDone = true;
             return _compliedSentes;
         }
-        public IEnumerable<ResultRecord> Run()
-        {            
-            return _dbConnectionManager.runner.Run(this,_dbConnectionManager.DbConnection,Parameters);            
-        }
-        public Task<IEnumerable<ResultRecord>> RunAsync()
-        {           
-            return _dbConnectionManager.runner.RunAsync(this, _dbConnectionManager.DbConnection,Parameters);
-        }
-      
-        public string CaptionsToString()
-        {
-            var captions = new StringBuilder();
-            foreach (var c in SelectedFields)
-                captions.Append(c.ColumnCaption).Append("\t");
-            captions.AppendLine();
-            foreach (var c in SelectedFields)
-                captions.Append(string.Empty.PadLeft(c.ColumnCaption.Length, '-')).Append("\t");
-            return captions.ToString();
-        }
-
     }
     public class Condition
     {

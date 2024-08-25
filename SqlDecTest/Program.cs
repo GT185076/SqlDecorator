@@ -54,7 +54,7 @@ namespace SqlDecTest
             foreach (var record in select.Run())
             {
                 foreach (var f in record.Columns)
-                    Console.Write($"{f}\t\t");
+                    Console.Write($"{f}\t");
                 Console.WriteLine();
             }
 
