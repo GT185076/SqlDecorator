@@ -66,7 +66,7 @@ namespace SqlDecTest
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                      .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-            foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())
+            foreach (var olr in selectAll.Run().Export<OrderDetails>())
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
@@ -80,7 +80,7 @@ namespace SqlDecTest
             var selectOrder = new Select(northWind).TableAdd(order2, null, ColumnsSelection.All);
             printCaptions(selectOrder);
 
-            foreach (var or in selectOrder.Run().Export<DBTables.MsSql.Orders>())
+            foreach (var or in selectOrder.Run().Export<Orders>())
                     Console.WriteLine(or.ToString());
 
             Console.ReadKey();
