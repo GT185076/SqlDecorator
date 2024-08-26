@@ -19,7 +19,7 @@ namespace SQLDecorator
         Or,
         Not,
         AndNot,
-        OrNot
+        OrNot       
     }
     public enum ColumnType
     {
@@ -63,10 +63,12 @@ namespace SQLDecorator
         NotBetween,
         Like,
         NotLike,
-        IsNull = 11,
+        In,
+        NotIn,
+        IsNull ,
         NotNull,
         Is,
-        Not,
+        Not        
     }
     public enum OrderBy
     {
@@ -439,8 +441,7 @@ namespace SQLDecorator
         bool _isDistict;
         int  _Top;
         int  _fieldCount;
-        DbConnectionManager _dbConnectionManager;        
-       
+        DbConnectionManager _dbConnectionManager;              
         List<TableColumn> GroupBy { get; set; }
         Dictionary<TableColumn,OrderBy> OrderBy { get; set; }
         Dictionary<string,int> FieldsDictionary { get; set; }
@@ -971,6 +972,16 @@ namespace SQLDecorator
                     sentes.Insert(0, $"{firstOperandName} not like {SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
+            if (Operator == ComperationOperator.In)
+            {
+                sentes.Insert(0, $"{firstOperandName} in ({SecondOperand.ToNameOrParameter(parentSelect)})");
+            }
+
+            if (Operator == ComperationOperator.NotIn)
+            {
+                sentes.Insert(0, $"{firstOperandName} not in ({SecondOperand.ToNameOrParameter(parentSelect)})");
+            }
+
             if (Operator == ComperationOperator.Between)
             {
                 string statment = string.Empty;                
@@ -1437,6 +1448,70 @@ namespace SQLDecorator
             };
             return c;
         }
+
+        static public Condition In(this StringColumn Sc, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.In,
+                FirstOperand = Sc,
+                SecondOperand = new StringColumn { ColumnCaption="Array" ,VirtualValue = value }
+            };
+            return c;
+        }
+        static public Condition NotIn(this StringColumn Sc, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.NotIn,
+                FirstOperand = Sc,
+                SecondOperand = new StringColumn { ColumnCaption="Array", VirtualValue = value }
+            };
+            return c;
+        }
+
+        static public Condition In(this IntegerColumn Ic, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.In,
+                FirstOperand = Ic,
+                SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
+            };
+            return c;
+        }
+        static public Condition NotIn(this IntegerColumn Ic, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.NotIn,
+                FirstOperand = Ic,
+                SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
+            };
+            return c;
+        }
+
+        static public Condition In(this NumberColumn Nc, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.In,
+                FirstOperand = Nc,
+                SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
+            };
+            return c;
+        }
+        static public Condition NotIn(this NumberColumn Nc, string value)
+        {
+            var c = new Condition
+            {
+                Operator = ComperationOperator.NotIn,
+                FirstOperand = Nc,
+                SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
+            };
+            return c;
+        }
+
         static public Condition Not(this LogicalColumn Lc)
         {
             var c = new Condition
