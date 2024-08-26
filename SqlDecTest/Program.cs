@@ -45,7 +45,7 @@ namespace SqlDecTest
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                      .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
                      .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
-                     .And(orderDetail.ProductId.In("12,13"))
+                     .And(orderDetail.ProductId.In("12,13,14"))
                      .GroupByAdd(orderDetail.ProductId, product.ProductName)
                      .OrderByAdd(totalAmount.Sum(), OrderBy.Desc)
                      .Having(product.ProductId.Count().GreaterThan(10));

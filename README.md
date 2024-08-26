@@ -1,6 +1,6 @@
 ﻿# Sql Decorator
 ---------------
-By Gadi Toledano, 2024
+By Gadi Toledano, 2024 , all rights reserved (c)
 
 Sql Decorator is a simple project aimed to practice some of the common design patterns.
 Sql decorator is also a simple Object Relationship Management mapper to SQL tables.  
