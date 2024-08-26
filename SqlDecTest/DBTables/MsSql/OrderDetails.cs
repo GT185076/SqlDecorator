@@ -20,8 +20,11 @@ namespace DBTables.MsSql
         public NumberColumn Discount;
 
         public OrderDetails() : base("Order Details", "dbo")
+        { }
+
+        public override TableColumn[] GetPrimaryKey()
         {
-            SetPrimaryKey(OrderID, ProductId);
+            return new TableColumn[] { OrderID, ProductId };
         }
     }
 }

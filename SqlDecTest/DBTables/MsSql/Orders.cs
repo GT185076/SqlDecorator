@@ -20,8 +20,12 @@ namespace DBTables.MsSql
                                              "(select count (*) from \"Order Details\" where \"Order Details\".\"OrderId\" = \"Orders_0\".\"OrderId\" )");
 
         public Orders() : base("Orders", "dbo")
+        {          
+        }
+
+        public override TableColumn[] GetPrimaryKey()
         {
-            SetPrimaryKey(OrderID);
+            return  new TableColumn[] { OrderID };
         }
     }
 }

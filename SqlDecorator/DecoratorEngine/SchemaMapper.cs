@@ -102,6 +102,7 @@ namespace SQLDecorator
     }
     public abstract class DBTable : Record
     {
+        public abstract TableColumn[] GetPrimaryKey();
         internal string _caption { get; set; }
         public string Schema { private set; get; }
         public string TableName { private set; get; }      
@@ -118,13 +119,7 @@ namespace SQLDecorator
             {
                 _caption = value;
             }
-        }
-        public TableColumn[] PrimaryKey { private set; get; }   
-        public TableColumn[] SetPrimaryKey(params TableColumn[] FiledsNames)
-        {           
-            PrimaryKey = FiledsNames;
-            return PrimaryKey;
-        }
+        }        
         public DBTable(string TableName)
         {
             this.TableName = TableName;

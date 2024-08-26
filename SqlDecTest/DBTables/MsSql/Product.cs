@@ -35,8 +35,11 @@ namespace DBTables.MsSql
         public LogicalColumn Discontinued;
 
         public Product() : base("Products", "dbo")
+        {}
+
+        public override TableColumn[] GetPrimaryKey()
         {
-            SetPrimaryKey(ProductId);
+            return new TableColumn[] { ProductId };
         }
     }
 }
