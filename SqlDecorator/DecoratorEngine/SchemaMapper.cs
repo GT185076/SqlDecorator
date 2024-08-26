@@ -600,7 +600,7 @@ namespace SQLDecorator
         public Select Where(Condition FilterCondition)
         {
             _compileDone = false;
-            And(FilterCondition);
+            WhereAnd(FilterCondition);
             return this;
         }
         public Select Having(Condition HavingCondition)
@@ -611,7 +611,7 @@ namespace SQLDecorator
             HavingConditions.Add(HavingCondition);
             return this;
         }
-        public Select And(Condition FilterCondition)
+        public Select WhereAnd(Condition FilterCondition)
         {
             _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.And;
@@ -619,7 +619,7 @@ namespace SQLDecorator
             WhereConditions.Add(FilterCondition);
             return this;
         }
-        public Select Or(Condition FilterCondition)
+        public Select WhereOr(Condition FilterCondition)
         {
             _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Or;
@@ -627,7 +627,7 @@ namespace SQLDecorator
             WhereConditions.Add(FilterCondition);
             return this;
         }
-        public Select AndNot(Condition FilterCondition)
+        public Select WhereAndNot(Condition FilterCondition)
         {
             _compileDone = false;
             FilterCondition.GetFirst().MainOperator = BooleanOperator.Not;
