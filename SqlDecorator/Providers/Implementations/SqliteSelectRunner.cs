@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Logging;
-using Npgsql;
+using Microsoft.Data.Sqlite;
 
 namespace SQLDecorator.Providers
-
 {
-    public class MsssqlSelectRunner : DbProviderRunner
+    public class SqliteSelectRunner : DbProviderRunner
     {
         public DbConnection CreateDbConnection(string ConnectionString)
         {
-            var DbConnection = new SqlConnection(ConnectionString);
+            var DbConnection = new SqliteConnection(ConnectionString);
             DbConnection.Open();
             return DbConnection;
         }
         public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
         {
-            using (SqlCommand command = new SqlCommand(statment.ToString(), Dbconnection as SqlConnection))
+            using (SqliteCommand command = new SqliteCommand(statment.ToString(), Dbconnection as SqliteConnection))
             {
                 if (parameters != null && parameters.Count>0) 
-                command.Parameters.AddRange(parameters.ToArray());
+                    foreach( var parameter in parameters) 
+                    {
+                        command.Parameters.Add(parameter as SqliteParameter);
+                    }
 
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (var reader = command.ExecuteReader())
                     while (reader.Read())
                     {
                         var record = statment.FeatchNextRecord(reader);
@@ -35,11 +35,15 @@ namespace SQLDecorator.Providers
             }
         }
         public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection DbConnection, List<DbParameter> parameters)
-        {
-            await using (var cmd = new SqlCommand(statment.ToString(), DbConnection as SqlConnection))
+        {           
+            await using (var cmd = new SqliteCommand(statment.ToString(), DbConnection as SqliteConnection))
             {
                 if (parameters != null && parameters.Count > 0)
-                    cmd.Parameters.AddRange(parameters.ToArray());
+                    foreach (var parameter in parameters)
+                    {
+                        cmd.Parameters.Add(parameter as SqliteParameter);
+                    }
+
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -60,17 +64,17 @@ namespace SQLDecorator.Providers
                 Console.WriteLine(statment);
             }
 
-            using (SqlCommand command = new SqlCommand(statment, DbConnection as SqlConnection))
+            var command = DbConnection.CreateCommand();
+            command.CommandText = statment;
+
+            using (var reader = command.ExecuteReader())
             {
-                using (SqlDataReader reader = command.ExecuteReader())
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                        if (reader.FieldCount > 0)
-                            sf.Append(reader[0].ToString());
+                    sf.Append(reader.GetString(0));
                 }
             }
-                
-            
+
             if (IsLog)
             {
                 Console.WriteLine("");
@@ -79,9 +83,9 @@ namespace SQLDecorator.Providers
 
             return sf.ToString();
         }
-        DbParameter DbProviderRunner.CreateParameter(string name, object value)
+        public DbParameter CreateParameter(string name, object value)
         {
-           return new SqlParameter(name, value);
+            return new SqliteParameter(name, value);
         }
     }
 }

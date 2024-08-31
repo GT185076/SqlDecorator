@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+		<None Update="DBTables\Sqlite\NorthWind.Sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="DBTables\MsSql\NorthWind.Sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

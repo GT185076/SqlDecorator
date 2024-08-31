@@ -17,6 +17,7 @@ namespace SQLDecorator
         {
             Resolver<DbProviderRunner>.Register<MsssqlSelectRunner>(DBProvider.MsSql.ToString(), true);
             Resolver<DbProviderRunner>.Register<PostGresSelectRunner>(DBProvider.PostGres.ToString(), true);
+            Resolver<DbProviderRunner>.Register<SqliteSelectRunner>(DBProvider.SqlLite.ToString(), true);
         }
     }
 }

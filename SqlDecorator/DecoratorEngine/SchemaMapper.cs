@@ -214,7 +214,7 @@ namespace SQLDecorator
             {
                 int paramIndex = select.Parameters.Count() + 1;
                 var paramName = "@" + paramIndex.ToString();
-                var parameter = new SqlParameter(paramName, _value);
+                var parameter =  select.dbConnectionManager.CreateParameter(paramName, _value);
                 select.Parameters.Add(parameter);
                 return $"{paramName}";
             }
@@ -274,7 +274,7 @@ namespace SQLDecorator
             }
         }
         public int? OrdinalNumber { get; set; }
-        internal SqlParameter parameter { get; set; }
+      
     }
     public class StringColumn : TableColumn
     {
@@ -436,7 +436,7 @@ namespace SQLDecorator
         bool _isDistict;
         int  _Top;
         int  _fieldCount;
-        DbConnectionManager _dbConnectionManager;              
+        internal DbConnectionManager dbConnectionManager;              
         List<TableColumn> GroupBy { get; set; }
         Dictionary<TableColumn,OrderBy> OrderBy { get; set; }
         Dictionary<string,int> FieldsDictionary { get; set; }
@@ -458,11 +458,11 @@ namespace SQLDecorator
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
         public List<TableColumn> Columns { get; private set; }
-        public List<SqlParameter> Parameters { get; internal set ;}
+        public List<DbParameter> Parameters { get; internal set ;}
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnectionManager DbconnectionManager)
         {
-            _dbConnectionManager = DbconnectionManager;
+            dbConnectionManager = DbconnectionManager;
             Columns   = new List<TableColumn>();
             SelectedTables   = new List<DBTable>();
             WhereConditions  = new List<Condition>();
@@ -471,7 +471,7 @@ namespace SQLDecorator
             GroupBy          = new List<TableColumn>();
             OrderBy          = new Dictionary<TableColumn,OrderBy>();
             Result           = new List<ResultRecord>();
-            Parameters       = new List<SqlParameter>();
+            Parameters       = new List<DbParameter>();
         }
         public Select Distict()
         {
@@ -643,12 +643,12 @@ namespace SQLDecorator
         public IEnumerable<ResultRecord> Run()
         {
             if (!_compileDone) Compile();
-            return _dbConnectionManager.Run(this, Parameters);            
+            return dbConnectionManager.Run(this, Parameters);            
         }
         public Task<IEnumerable<ResultRecord>> RunAsync()
         {
             if (!_compileDone) Compile();
-            return _dbConnectionManager.RunAsync(this,Parameters);
+            return dbConnectionManager.RunAsync(this,Parameters);
         }   
         public string CaptionsToString()
         {

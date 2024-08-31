@@ -16,7 +16,7 @@ namespace SQLDecorator.Providers
             DbConnection.Open();
             return DbConnection;
         }
-        public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters)
+        public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
         {
             using (var cmd = new NpgsqlCommand(statment.ToString(), Dbconnection as NpgsqlConnection))
             {
@@ -32,7 +32,7 @@ namespace SQLDecorator.Providers
                 }
             }
         }
-        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters)
+        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
         {
             await using (var cmd = new NpgsqlCommand(statment.ToString(), Dbconnection as NpgsqlConnection))
             {
@@ -75,6 +75,10 @@ namespace SQLDecorator.Providers
             }
 
             return sf.ToString();
+        }
+        DbParameter DbProviderRunner.CreateParameter(string name, object value)
+        {
+            return new NpgsqlParameter(name, value);
         }
 
     }
