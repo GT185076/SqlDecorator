@@ -27,30 +27,36 @@ Here an example how SQL Mapping can be easy :
                 public StringColumn ShipName;
 
                 public Orders() : base("Orders",  "dbo")
-                {            
-                    SetPrimaryKey(OrderID);
-                }        
+                {}                       
+                   
+                public override TableColumn[] GetPrimaryKey()
+                  {
+                    return  new TableColumn[] { OrderID };
+                  }
             }
         }
 
 Writing a SQL tables query (Select) can be a simple a this :
 
+                var northWind   = new NorthWind(builder.ConnectionString);   
                 var product     = new Product();
                 var order       = new Orders();
                 var orderDetail = new OrderDetails();
                 var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
 
-                var select = new Select(connection)
-                         .Top(10)
-                         .TableAdd(orderDetail, "OrderLines")
-                         .ColumnAdd(orderDetail.ProductId)
-                         .ColumnAdd(product.ProductName)
-                         .ColumnAdd(totalAmount.Sum())
-                         .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
-                         .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
-                         .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
-                         .GroupByAdd(orderDetail.ProductId, product.ProductName)
-                         .OrderByAdd(totalAmount.Sum(), OrderBy.Desc);
+                var select = new Select(northWind)
+                     .Top(10)
+                     .TableAdd(orderDetail, "OrderLines")
+                     .ColumnAdd(orderDetail.ProductId)
+                     .ColumnAdd(product.ProductName)
+                     .ColumnAdd(totalAmount.Sum())
+                     .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
+                     .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                     .WhereAnd(orderDetail.ProductId.In("12,13,14"))
+                     .GroupByAdd(orderDetail.ProductId, product.ProductName)
+                     .OrderByAdd(totalAmount.Sum(), OrderBy.Desc)
+                     .Having(product.ProductId.Count().GreaterThan(10));
 
 And reading the answer :
 
