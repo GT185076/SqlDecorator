@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Text;
-using SQLDecorator.Composer;
+using SQLDecorator.Providers;
 
 namespace DBTables.MsSql
 {
@@ -17,7 +17,7 @@ namespace DBTables.MsSql
         protected override void Ver1()
         {
             var check = "select count(*) from sysobjects where id = object_id('dbo.orders')";
-            var exists = RunSql(check).Trim();
+            var exists =  RunDMLSql(check).Trim();
             if (exists == "1") return;
 
             var NorthWindSeedFile = "DBTables\\Mssql\\NorthWind.sql";
@@ -28,7 +28,7 @@ namespace DBTables.MsSql
             {
                 if (line.Trim().ToUpper() == "GO")
                 {
-                    if (statement.Length > 0) RunSql(statement.ToString());
+                    if (statement.Length > 0) RunDMLSql(statement.ToString());
                     statement = new StringBuilder();
                     continue;
                 }

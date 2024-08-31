@@ -1,12 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Logging;
+using Npgsql;
 
-namespace SQLDecorator.Composer
+namespace SQLDecorator.Providers
+
 {
     public class MsssqlSelectRunner : DbProviderRunner
     {
+        public DbConnection CreateDbConnection(string ConnectionString)
+        {
+            var DbConnection = new SqlConnection(ConnectionString);
+            DbConnection.Open();
+            return DbConnection;
+        }
         public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters)
         {
             using (SqlCommand command = new SqlCommand(statment.ToString(), Dbconnection as SqlConnection))
@@ -37,6 +49,35 @@ namespace SQLDecorator.Composer
                 }
             }
             return statment.Result;
+        }       
+        public string RunDMLSql(string statment, DbConnection DbConnection ,bool IsLog=false)
+        {
+            StringBuilder sf = new StringBuilder();
+
+            if (IsLog)
+            {
+                Console.WriteLine("Run Sql:");
+                Console.WriteLine(statment);
+            }
+
+            using (SqlCommand command = new SqlCommand(statment, DbConnection as SqlConnection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                        if (reader.FieldCount > 0)
+                            sf.Append(reader[0].ToString());
+                }
+            }
+                
+            
+            if (IsLog)
+            {
+                Console.WriteLine("");
+                Console.WriteLine(sf.ToString());
+            }
+
+            return sf.ToString();
         }
     }
 }

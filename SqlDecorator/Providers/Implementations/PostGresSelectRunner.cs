@@ -2,12 +2,20 @@
 using System.Threading.Tasks;
 using System.Data.Common;
 using Npgsql;
+using System.Text;
+using System;
 using Microsoft.Data.SqlClient;
 
-namespace SQLDecorator.Composer
+namespace SQLDecorator.Providers
 {
-    public class PostGressSelectRunner : DbProviderRunner
+    public class PostGresSelectRunner : DbProviderRunner
     {
+        public DbConnection CreateDbConnection(string ConnectionString)
+        {
+            var DbConnection = new NpgsqlConnection(ConnectionString);
+            DbConnection.Open();
+            return DbConnection;
+        }
         public IEnumerable<ResultRecord> Run(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters)
         {
             using (var cmd = new NpgsqlCommand(statment.ToString(), Dbconnection as NpgsqlConnection))
@@ -24,8 +32,7 @@ namespace SQLDecorator.Composer
                 }
             }
         }
-
-        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters )
+        public async Task<IEnumerable<ResultRecord>> RunAsync(Select statment, DbConnection Dbconnection, List<SqlParameter> parameters)
         {
             await using (var cmd = new NpgsqlCommand(statment.ToString(), Dbconnection as NpgsqlConnection))
             {
@@ -40,6 +47,34 @@ namespace SQLDecorator.Composer
                 }
             }
             return statment.Result;
+        }
+        public string RunDMLSql(string statment, DbConnection DbConnection, bool IsLog = false)
+        {
+            if (IsLog)
+            {
+                Console.WriteLine("Run Sql:");
+                Console.WriteLine(statment);
+            }
+
+            var sf = new StringBuilder();
+
+            using (NpgsqlCommand command = new NpgsqlCommand(statment, DbConnection as NpgsqlConnection))
+            {
+                using (NpgsqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                        if (reader.FieldCount > 0)
+                            sf.Append(reader[0].ToString());
+                }
+            }
+
+            if (IsLog)
+            {
+                Console.WriteLine("");
+                Console.WriteLine(sf.ToString());
+            }
+
+            return sf.ToString();
         }
 
     }

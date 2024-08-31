@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using SQLDecorator.Composer;
+using SQLDecorator.Providers;
 
 namespace SQLDecorator
 {
@@ -643,12 +643,12 @@ namespace SQLDecorator
         public IEnumerable<ResultRecord> Run()
         {
             if (!_compileDone) Compile();
-            return _dbConnectionManager.runner.Run(this,_dbConnectionManager.DbConnection,Parameters);            
+            return _dbConnectionManager.Run(this, Parameters);            
         }
         public Task<IEnumerable<ResultRecord>> RunAsync()
         {
             if (!_compileDone) Compile();
-            return _dbConnectionManager.runner.RunAsync(this, _dbConnectionManager.DbConnection,Parameters);
+            return _dbConnectionManager.RunAsync(this,Parameters);
         }   
         public string CaptionsToString()
         {

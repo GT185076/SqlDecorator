@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SQLDecorator;
 using DBTables.MsSql;
 using System.Text;
+using Microsoft.Data.Sqlite;
 
 namespace SqlDecTest
 {
@@ -12,6 +13,8 @@ namespace SqlDecTest
     {
         static void Main(string[] args)
         {
+            //sqlight();
+
             Console.WriteLine("Data Base Object Mapper");
             Console.WriteLine("-----------------------");
             RunMssql();
@@ -19,6 +22,7 @@ namespace SqlDecTest
         }
         static void RunMssql()
         {
+           
 
             Console.WriteLine("\nQuery data example:");
             Console.WriteLine("=========================================\n");
@@ -87,7 +91,30 @@ namespace SqlDecTest
             Console.ReadKey();
         }
 
-            private static void printCaptions(Select selectCmd)
+        static void sqlight()
+        {            
+            using (var connection = new SqliteConnection("Data Source=hello_Sqlight.db"))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText =  @"        SELECT name        FROM user        WHERE id = $id    ";
+                command.Parameters.AddWithValue("$id", "Gadi");
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var name = reader.GetString(0);
+
+                        Console.WriteLine($"Hello, {name}!");
+                    }
+                }
+            }
+            
+        }
+
+        private static void printCaptions(Select selectCmd)
             {
             Console.WriteLine(selectCmd.ParametersToString());
             Console.WriteLine();
@@ -96,7 +123,6 @@ namespace SqlDecTest
             Console.WriteLine(selectCmd.CaptionsToString());            
             Console.WriteLine();                                 
             }
-
     }
     }
 
