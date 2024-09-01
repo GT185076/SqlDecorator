@@ -136,7 +136,7 @@ namespace SqlDecTest
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
-                    $"{olr.Quantity}\t");
+                    $"{olr.Quantity}\t\n");
                     
 
             Console.ReadKey();
