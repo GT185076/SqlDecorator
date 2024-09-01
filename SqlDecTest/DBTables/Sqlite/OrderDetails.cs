@@ -4,27 +4,47 @@ namespace DBTables.Sqlite
 {
     public class OrderDetails : DBTable
     {
+        [ColumnName("OrderDetailID")]
+        public IntegerColumn OrderDetailID;
+
         [ColumnName("OrderID")]
         public IntegerColumn OrderID;
 
         [ColumnName("ProductID")]
         public IntegerColumn ProductId;
 
-        [ColumnName("UnitPrice")]
-        public NumberColumn UnitPrice;
-
         [ColumnName("Quantity")]
         public IntegerColumn Quantity;
-
-        [ColumnName("Discount")]
-        public NumberColumn Discount;
 
         public OrderDetails() : base("OrderDetails")
         { }
 
         public override TableColumn[] GetPrimaryKey()
         {
-            return new TableColumn[] { OrderID, ProductId };
+            return new TableColumn[] { OrderDetailID };
+        }
+    }
+
+    public class View1 : DBTable
+    {
+        [ColumnName("OrderDetailID")]
+        public IntegerColumn OrderDetailID;
+
+        [ColumnName("OrderID")]
+        public IntegerColumn OrderID;
+
+        [ColumnName("ProductID")]
+        public IntegerColumn ProductId;
+
+        [ColumnName("Quantity")]
+        public IntegerColumn Quantity;
+
+        public View1() : base("View1")
+        { }
+
+        public override TableColumn[] GetPrimaryKey()
+        {
+            return new TableColumn[] { OrderDetailID };
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using SQLDecorator;
-using DBTables.MsSql;
+using DBTables.Sqlite;
 using Microsoft.Data.Sqlite;
 
 
@@ -13,7 +13,8 @@ namespace SqlDecTest
         {
             Console.WriteLine("Data Base Object Mapper");
             Console.WriteLine("-----------------------");
-            RunMssql();
+            // RunMssql();
+            RunSqlite();
             Console.ReadKey();
         }
         static void RunMssql()
@@ -71,9 +72,8 @@ namespace SqlDecTest
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
-                    $"{olr.Quantity}\t" +
-                    $"{olr.UnitPrice}\t" +
-                    $"{olr.Discount} \n");
+                    $"{olr.Quantity}\t");
+           
 
 
             Console.ReadKey();
@@ -94,13 +94,13 @@ namespace SqlDecTest
 
             SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder();
             builder.DataSource = "Nortwind_Sqlight.db";
-
-            var northWind2 = new NorthWind(builder.ConnectionString);
+            builder.DataSource = ":memory:";
+            var northWind2 = new NorthWind2(builder.ConnectionString);
 
             var product = new Product();
             var order = new Orders();
             var orderDetail = new OrderDetails();
-            var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
+            var totalAmount = new IntegerColumn("Total Amount", "Products.Price * OrderLines.Quantity");
 
             var select = new Select(northWind2)                     
                      .TableAdd(orderDetail, "OrderLines")
@@ -109,11 +109,11 @@ namespace SqlDecTest
                      .ColumnAdd(totalAmount.Sum())
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                      .TableLeftJoin(product, "Products", product.ProductId.Equal(orderDetail.ProductId))
-                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)))
+                     .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 42, 0, 0, 0)))
                      .WhereAnd(orderDetail.ProductId.In("12,13,14"))
                      .GroupByAdd(orderDetail.ProductId, product.ProductName)
                      .OrderByAdd(totalAmount.Sum(), OrderBy.Desc)
-                     .Having(product.ProductId.Count().GreaterThan(10));
+                     .Having(product.ProductId.Count().GreaterThan(5));
 
             printCaptions(select);
             
@@ -136,17 +136,15 @@ namespace SqlDecTest
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
-                    $"{olr.Quantity}\t" +
-                    $"{olr.UnitPrice}\t" +
-                    $"{olr.Discount} \n");
-
+                    $"{olr.Quantity}\t");
+                    
 
             Console.ReadKey();
-            var order2 = new Orders();
-            var selectOrder = new Select(northWind2).TableAdd(order2, null, ColumnsSelection.All);
+            var View1 = new View1();
+            var selectOrder = new Select(northWind2).TableAdd(View1, null, ColumnsSelection.All);
             printCaptions(selectOrder);
 
-            foreach (var or in selectOrder.Run().Export<Orders>())
+            foreach (var or in selectOrder.Run().Export<View1>())
                 Console.WriteLine(or.ToString());
 
             Console.ReadKey();

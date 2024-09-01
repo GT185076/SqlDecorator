@@ -13,8 +13,8 @@ namespace DBTables.Sqlite
         [ColumnName("OrderDate")]
         public DateTimeColumn OrderDate;
 
-        [ColumnName("ShipName")]
-        public StringColumn ShipName;
+        [ColumnName("ShipperId")]
+        public IntegerColumn ShipperId;
         
         public IntegerColumn numbersOflines = new IntegerColumn("NumberOfLines", 
                                              "(select count (*) from \"OrderDetails\" where \"OrderDetails\".\"OrderId\" = \"Orders_0\".\"OrderId\" )");

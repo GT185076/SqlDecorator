@@ -181,7 +181,7 @@ namespace SQLDecorator
                     fullName = VirtualValue;
                 else
                 {
-                    if (ParentTable != null)
+                    if (ParentTable != null && !string.IsNullOrWhiteSpace(ParentTable.TableCaption))
                         fullName = $"\"{ParentTable.TableCaption}\".\"{FieldName}\"";
                     else
                         fullName = $"\"{FieldName}\"";
@@ -708,7 +708,10 @@ namespace SQLDecorator
                     if (st.Length == 0)
                     {
                         st.Append("\n").Append(FROM);
-                        st.Append($" \"{t.Schema}\".\"{t.TableName}\" ");
+                        if (string.IsNullOrEmpty(t.Schema))
+                            st.Append($" \"{t.TableName}\" ");
+                        else
+                            st.Append($" \"{t.Schema}\".\"{t.TableName}\" ");
                     }
                     else
                         st.Append(",\n").Append($" \"{t.Schema}\".\"{t.TableName}\" ");
@@ -719,7 +722,11 @@ namespace SQLDecorator
 
                 if (t.JoinType == JoinType.Inner)
                 {
-                    st.Append("\n").Append($"JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+                    if (string.IsNullOrEmpty(t.Schema))
+                        st.Append($"\n JOIN \"{t.TableName}\" ");
+                    else
+                        st.Append("\n").Append($" JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 
@@ -730,7 +737,10 @@ namespace SQLDecorator
 
                 if (t.JoinType == JoinType.Left)
                 {
-                    st.Append("\n").Append($"LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
+                    if (string.IsNullOrEmpty(t.Schema))
+                        st.Append($"\n LEFT JOIN \"{t.TableName}\" ");
+                    else
+                        st.Append("\n").Append($" LEFT JOIN \"{t.Schema}\".\"{t.TableName}\" ");
                     if (!string.IsNullOrEmpty(t._caption))
                         st.Append($"\"{t._caption}\" ");
 

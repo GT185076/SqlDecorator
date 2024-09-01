@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS Shippers;
 Go;
 DROP TABLE IF EXISTS Suppliers;
 Go;
+DROP VIEW  IF EXISTS View1;
+Go;
 
 CREATE TABLE Categories
 (      
@@ -95,6 +97,13 @@ CREATE TABLE OrderDetails(
 	FOREIGN KEY (OrderID) REFERENCES Orders (OrderID),
 	FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
 );
+Go;
+CREATE View View1 as
+Select OrderDetailID ,
+    OrderID ,
+    ProductID ,
+    Quantity 
+ from OrderDetails ;
 Go;
 INSERT INTO Categories VALUES(1,'Beverages','Soft drinks, coffees, teas, beers, and ales');
 INSERT INTO Categories VALUES(2,'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');

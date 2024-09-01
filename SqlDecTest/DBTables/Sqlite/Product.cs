@@ -16,23 +16,11 @@ namespace DBTables.Sqlite
         [ColumnName("CategoryID")]
         public IntegerColumn CategoryID;
 
-        [ColumnName("QuantityPerUnit")]
-        public StringColumn QuantityPerUnit;
+        [ColumnName("Unit")]
+        public StringColumn Unit;
 
-        [ColumnName("UnitPrice")]
-        public NumberColumn UnitPrice;
-
-        [ColumnName("UnitsInStock")]
-        public IntegerColumn UnitsInStock;
-
-        [ColumnName("UnitsOnOrder")]
-        public IntegerColumn UnitsOnOrder;
-
-        [ColumnName("ReorderLevel")]
-        public IntegerColumn ReorderLevel;
-
-        [ColumnName("Discontinued")]
-        public LogicalColumn Discontinued;
+        [ColumnName("Price")]
+        public NumberColumn Price;
 
         public Product() : base("Products")
         {}
