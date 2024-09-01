@@ -76,7 +76,8 @@ The FInal result will be :
         JOIN      "dbo"."Orders" "Orders"  ON ("Orders"."OrderID"="OrderLines"."OrderID") 
         LEFT JOIN "dbo"."Products" "Products"  ON ("Products"."ProductID"="OrderLines"."ProductID")
         WHERE     ("Orders"."OrderDate">'1992-08-05T19:19:37') 
-        GROUP BY  "OrderLines"."ProductID","Products"."ProductName" ORDER BY Sum(Products.UnitPrice * OrderLines.Quantity) Desc
+        GROUP BY  "OrderLines"."ProductID","Products"."ProductName" 
+        ORDER BY  Sum(Products.UnitPrice * OrderLines.Quantity) Desc
 
         ProductID       ProductName                     Total Amount
         ---------       -----------                     ------------
