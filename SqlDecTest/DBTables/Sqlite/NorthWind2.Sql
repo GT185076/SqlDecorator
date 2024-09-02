@@ -1,22 +1,21 @@
 DROP TABLE IF EXISTS OrderDetails;
-Go;
+GO
 DROP TABLE IF EXISTS Orders;
-Go;
+GO
 DROP TABLE IF EXISTS Products;
-Go;
+GO
 DROP TABLE IF EXISTS Categories;
-Go;
+GO
 DROP TABLE IF EXISTS Customers;
-Go;
+GO
 DROP TABLE IF EXISTS Employees;
-Go;
+GO
 DROP TABLE IF EXISTS Shippers;
-Go;
+GO
 DROP TABLE IF EXISTS Suppliers;
-Go;
+GO
 DROP VIEW  IF EXISTS View1;
-Go;
-
+GO
 CREATE TABLE Categories
 (      
     CategoryID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +23,7 @@ CREATE TABLE Categories
     Description TEXT
 );
 
-Go;
+Go
 CREATE TABLE Customers
 (      
     CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +35,7 @@ CREATE TABLE Customers
     Country TEXT
 );
 
-Go;
+Go
 CREATE TABLE Employees
 (
     EmployeeID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,14 +46,14 @@ CREATE TABLE Employees
     Notes TEXT
 );
 
-Go;
+Go
 CREATE TABLE Shippers(
     ShipperID INTEGER PRIMARY KEY AUTOINCREMENT,
     ShipperName TEXT,
     Phone TEXT
 );
 
-Go;
+Go
 CREATE TABLE Suppliers(
     SupplierID INTEGER PRIMARY KEY AUTOINCREMENT,
     SupplierName TEXT,
@@ -66,7 +65,7 @@ CREATE TABLE Suppliers(
     Phone TEXT
 );
 
-Go;
+Go
 CREATE TABLE Products(
     ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
     ProductName TEXT,
@@ -77,7 +76,7 @@ CREATE TABLE Products(
 	FOREIGN KEY (CategoryID) REFERENCES Categories (CategoryID),
 	FOREIGN KEY (SupplierID) REFERENCES Suppliers (SupplierID)
 );
-Go;
+Go
 CREATE TABLE Orders(
     OrderID INTEGER PRIMARY KEY AUTOINCREMENT,
     CustomerID INTEGER,
@@ -88,7 +87,7 @@ CREATE TABLE Orders(
     FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID),
     FOREIGN KEY (ShipperID) REFERENCES Shippers (ShipperID)
 );
-Go;
+Go
 CREATE TABLE OrderDetails(
     OrderDetailID INTEGER PRIMARY KEY AUTOINCREMENT,
     OrderID INTEGER,
@@ -97,14 +96,14 @@ CREATE TABLE OrderDetails(
 	FOREIGN KEY (OrderID) REFERENCES Orders (OrderID),
 	FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
 );
-Go;
+Go
 CREATE View View1 as
 Select OrderDetailID ,
     OrderID ,
     ProductID ,
     Quantity 
  from OrderDetails ;
-Go;
+Go
 INSERT INTO Categories VALUES(1,'Beverages','Soft drinks, coffees, teas, beers, and ales');
 INSERT INTO Categories VALUES(2,'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 INSERT INTO Categories VALUES(3,'Confections','Desserts, candies, and sweet breads');
@@ -113,7 +112,7 @@ INSERT INTO Categories VALUES(5,'Grains/Cereals','Breads, crackers, pasta, and c
 INSERT INTO Categories VALUES(6,'Meat/Poultry','Prepared meats');
 INSERT INTO Categories VALUES(7,'Produce','Dried fruit and bean curd');
 INSERT INTO Categories VALUES(8,'Seafood','Seaweed and fish');
-Go;
+Go
 INSERT INTO Customers VALUES(1,'Alfreds Futterkiste','Maria Anders','Obere Str. 57','Berlin','12209','Germany');
 INSERT INTO Customers VALUES(2,'Ana Trujillo Emparedados y helados','Ana Trujillo','Avda. de la Constitución 2222','México D.F.','5021','Mexico');
 INSERT INTO Customers VALUES(3,'Antonio Moreno Taquería','Antonio Moreno','Mataderos 2312','México D.F.','5023','Mexico');
@@ -205,7 +204,7 @@ INSERT INTO Customers VALUES(88,'Wellington Importadora','Paula Parente','Rua do
 INSERT INTO Customers VALUES(89,'White Clover Markets','Karl Jablonski','305 - 14th Ave. S. Suite 3B','Seattle','98128','USA');
 INSERT INTO Customers VALUES(90,'Wilman Kala','Matti Karttunen','Keskuskatu 45','Helsinki','21240','Finland');
 INSERT INTO Customers VALUES(91,'Wolski','Zbyszek','ul. Filtrowa 68','Walla','01-012','Poland');
-Go;
+Go
 INSERT INTO Employees VALUES(1,'Davolio','Nancy','1968-12-08','EmpID1.pic','Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of ''Toastmasters International''.');
 INSERT INTO Employees VALUES(2,'Fuller','Andrew','1952-02-19','EmpID2.pic','Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.');
 INSERT INTO Employees VALUES(3,'Leverling','Janet','1963-08-30','EmpID3.pic','Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.');
@@ -216,11 +215,11 @@ INSERT INTO Employees VALUES(7,'King','Robert','1960-05-29','EmpID7.pic','Robert
 INSERT INTO Employees VALUES(8,'Callahan','Laura','1958-01-09','EmpID8.pic','Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.');
 INSERT INTO Employees VALUES(9,'Dodsworth','Anne','1969-07-02','EmpID9.pic','Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.');
 INSERT INTO Employees VALUES(10,'West','Adam','1928-09-19','EmpID10.pic','An old chum.');
-Go;
+Go
 INSERT INTO Shippers VALUES(1, 'Speedy Express', '(503) 555-9831');
 INSERT INTO Shippers VALUES(2, 'United Package', '(503) 555-3199');
 INSERT INTO Shippers VALUES(3, 'Federal Shipping', '(503) 555-9931');
-Go;
+Go
 INSERT INTO Suppliers VALUES(1,'Exotic Liquid','Charlotte Cooper','49 Gilbert St.','Londona','EC1 4SD','UK','(171) 555-2222');
 INSERT INTO Suppliers VALUES(2,'New Orleans Cajun Delights','Shelley Burke','P.O. Box 78934','New Orleans','70117','USA','(100) 555-4822');
 INSERT INTO Suppliers VALUES(3,'Grandma Kelly''s Homestead','Regina Murphy','707 Oxford Rd.','Ann Arbor','48104','USA','(313) 555-5735');
@@ -250,7 +249,7 @@ INSERT INTO Suppliers VALUES(26,'Pasta Buttini s.r.l.','Giovanni Giudici','Via d
 INSERT INTO Suppliers VALUES(27,'Escargots Nouveaux','Marie Delamare','22, rue H. Voiron','Montceau','71300','France','85.57.00.07');
 INSERT INTO Suppliers VALUES(28,'Gai pâturage','Eliane Noz','Bat. B 3, rue des Alpes','Annecy','74000','France','38.76.98.06');
 INSERT INTO Suppliers VALUES(29,'Forêts d''érables','Chantal Goulet','148 rue Chasseur','Ste-Hyacinthe','J2S 7S8','Canada','(514) 555-2955');
-Go;
+Go
 INSERT INTO Products VALUES(1,'Chais',1,1,'10 boxes x 20 bags',18.00);
 INSERT INTO Products VALUES(2,'Chang',1,1,'24 - 12 oz bottles',19.00);
 INSERT INTO Products VALUES(3,'Aniseed Syrup',1,2,'12 - 550 ml bottles',10.00);
@@ -328,7 +327,7 @@ INSERT INTO Products VALUES(74,'Longlife Tofu',4,7,'5 kg pkg.',10.00);
 INSERT INTO Products VALUES(75,'Rhönbräu Klosterbier',12,1,'24 - 0.5 l bottles',7.75);
 INSERT INTO Products VALUES(76,'Lakkalikööri',23,1,'500 ml',18.00);
 INSERT INTO Products VALUES(77,'Original Frankfurter grüne Soße',12,2,'12 boxes',13.00);
-Go;
+Go
 INSERT INTO Orders VALUES(10248,90,5,'1996-07-04',3);
 INSERT INTO Orders VALUES(10249,81,6,'1996-07-05',1);
 INSERT INTO Orders VALUES(10250,34,4,'1996-07-08',2);
@@ -525,7 +524,7 @@ INSERT INTO Orders VALUES(10440,71,4,'1997-02-10',2);
 INSERT INTO Orders VALUES(10441,55,3,'1997-02-10',2);
 INSERT INTO Orders VALUES(10442,20,3,'1997-02-11',2);
 INSERT INTO Orders VALUES(10443,66,8,'1997-02-12',1);
-Go;
+Go
 INSERT INTO OrderDetails VALUES(1,10248,11,12);
 INSERT INTO OrderDetails VALUES(2,10248,42,10);
 INSERT INTO OrderDetails VALUES(3,10248,72,5);
@@ -1044,4 +1043,4 @@ INSERT INTO OrderDetails VALUES(515,10442,54,80);
 INSERT INTO OrderDetails VALUES(516,10442,66,60);
 INSERT INTO OrderDetails VALUES(517,10443,11,6);
 INSERT INTO OrderDetails VALUES(518,10443,28,12);
-Go;
+Go

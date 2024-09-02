@@ -20,13 +20,13 @@ namespace DBTables.Sqlite
             var exists =  RunDMLSql(check).Trim();
             if (exists == "1") return;
 
-            var NorthWindSeedFile = "DBTables\\sqlite\\NorthWind.sql";
+            var NorthWindSeedFile = "DBTables\\sqlite\\NorthWind2.sql";
             var lines = File.ReadAllLines(NorthWindSeedFile);
             var statement = new StringBuilder();
 
             foreach (var line in lines)
             {
-                if (line.Trim().ToUpper() == "GO;")
+                if (line.Trim().ToUpper() == "GO")
                 {
                     if (statement.Length > 0) RunDMLSql(statement.ToString());
                     statement = new StringBuilder();
