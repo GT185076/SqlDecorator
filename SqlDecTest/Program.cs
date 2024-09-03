@@ -1,9 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using System;
 using SQLDecorator;
-using DBTables.Sqlite;
-using Microsoft.Data.Sqlite;
-
+using DBTables;
 
 namespace SqlDecTest
 {
@@ -32,9 +31,9 @@ namespace SqlDecTest
 
             var northWind = new DBTables.MsSql.NorthWind(builder.ConnectionString);                     
 
-            var product     = new Product();
-            var order       = new Orders();
-            var orderDetail = new OrderDetails();
+            var product     = new DBTables.MsSql.Product();
+            var order       = new DBTables.MsSql.Orders();
+            var orderDetail = new DBTables.MsSql.OrderDetails();
             var totalAmount = new IntegerColumn("Total Amount", "Products.UnitPrice * OrderLines.Quantity");
            
             var select = new Select(northWind)
@@ -68,7 +67,7 @@ namespace SqlDecTest
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                      .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-            foreach (var olr in selectAll.Run().Export<OrderDetails>())
+            foreach (var olr in selectAll.Run().Export<DBTables.MsSql.OrderDetails>())
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
@@ -77,11 +76,11 @@ namespace SqlDecTest
 
 
             Console.ReadKey();
-            var order2 = new Orders();
+            var order2 = new DBTables.MsSql.Orders();
             var selectOrder = new Select(northWind).TableAdd(order2, null, ColumnsSelection.All);
             printCaptions(selectOrder);
 
-            foreach (var or in selectOrder.Run().Export<Orders>())
+            foreach (var or in selectOrder.Run().Export<DBTables.MsSql.Orders>())
                     Console.WriteLine(or.ToString());
 
             Console.ReadKey();
@@ -95,11 +94,11 @@ namespace SqlDecTest
             SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder();
             builder.DataSource = "Nortwind_Sqlight.db";
             builder.DataSource = ":memory:";
-            var northWind2 = new NorthWind2(builder.ConnectionString);
+            var northWind2 = new DBTables.Sqlite.NorthWind2(builder.ConnectionString);
 
-            var product = new Product();
-            var order = new Orders();
-            var orderDetail = new OrderDetails();
+            var product     = new DBTables.Sqlite.Product();
+            var order       = new DBTables.Sqlite.Orders();
+            var orderDetail = new DBTables.Sqlite.OrderDetails();
             var totalAmount = new IntegerColumn("Total Amount", "Products.Price * OrderLines.Quantity");
 
             var select = new Select(northWind2)                     
@@ -132,7 +131,7 @@ namespace SqlDecTest
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
                      .Where(order.OrderDate.GreaterThan(DateTime.Now - new TimeSpan(365 * 32, 0, 0, 0)));
 
-            foreach (var olr in selectAll.Run().Export<OrderDetails>())
+            foreach (var olr in selectAll.Run().Export<DBTables.Sqlite.OrderDetails>())
                 Console.Write(
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
@@ -140,11 +139,11 @@ namespace SqlDecTest
                     
 
             Console.ReadKey();
-            var View1 = new View1();
+            var View1 = new DBTables.Sqlite.View1();
             var selectOrder = new Select(northWind2).TableAdd(View1, null, ColumnsSelection.All);
             printCaptions(selectOrder);
 
-            foreach (var or in selectOrder.Run().Export<View1>())
+            foreach (var or in selectOrder.Run().Export<DBTables.Sqlite.View1>())
                 Console.WriteLine(or.ToString());
 
             Console.ReadKey();
