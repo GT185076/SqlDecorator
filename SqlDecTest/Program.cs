@@ -15,7 +15,7 @@ namespace SqlDecTest
             Console.WriteLine("-----------------------");
             // RunMssql();
             RunSqlite();
-            Console.ReadKey();
+            Console.Read();
         }
         static void RunMssql()
         {
@@ -62,7 +62,7 @@ namespace SqlDecTest
 
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
 
-            Console.ReadKey();
+            Console.Read();
             var selectAll = new Select(northWind)
                      .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
@@ -76,7 +76,7 @@ namespace SqlDecTest
            
 
 
-            Console.ReadKey();
+            Console.Read();
             var order2 = new DBTables.MsSql.Orders();
             var selectOrder = new Select(northWind).TableAdd(order2, null, ColumnsSelection.All);
             printCaptions(selectOrder);
@@ -84,7 +84,7 @@ namespace SqlDecTest
             foreach (var or in selectOrder.Run().Export<DBTables.MsSql.Orders>())
                     Console.WriteLine(or.ToString());
 
-            Console.ReadKey();
+            Console.Read();
         }
 
         static void RunSqlite()
@@ -143,7 +143,7 @@ namespace SqlDecTest
                     $"{olr.Quantity}\t\n");
                     
 
-            Console.ReadKey();
+            Console.Read();
             var View1 = new DBTables.Sqlite.View1();
             var selectOrder = new Select(northWind2).TableAdd(View1, null, ColumnsSelection.All);
             printCaptions(selectOrder);
@@ -151,7 +151,7 @@ namespace SqlDecTest
             foreach (var or in selectOrder.Run().Export<DBTables.Sqlite.View1>())
                 Console.WriteLine(or.ToString());
 
-            Console.ReadKey();
+            Console.Read();
         }
         
         private static void printCaptions(Select selectCmd)
