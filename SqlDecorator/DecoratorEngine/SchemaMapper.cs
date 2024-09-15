@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+using CommonInfra.Serialization;
 using SQLDecorator.Providers;
 
 namespace SQLDecorator
@@ -75,8 +75,9 @@ namespace SQLDecorator
         Asc,
         Desc        
     }
-    public abstract class Record
+    public abstract class Record 
     {
+        [JsonPropertyName("Record")]
         public TableColumn[] Columns { get; internal set; }
         public TableColumn this[string ColumnName]
         {
@@ -163,15 +164,22 @@ namespace SQLDecorator
         public int? OrdinalNumber { set; get; }
        
     }
-    public abstract class TableColumn
+    public abstract class TableColumn 
     {
         internal bool IsValueOnly { get { return String.IsNullOrWhiteSpace(FieldName) && String.IsNullOrWhiteSpace(VirtualValue); } }
         internal bool IsVirtualValueOnly { get { return !String.IsNullOrWhiteSpace(VirtualValue); } }
         internal string _caption { get; set; }
         internal AggregateFunction _aggregateFunction { get; set; }
+
+        [JsonIgnore]
         public DBTable ParentTable { get; internal set; }
+        [JsonIgnore]
         public string FieldName { get; set; }
+        [JsonIgnore]
         public string VirtualValue { get; set; }
+
+        public string TableName { get { return ParentTable?.TableName; }}
+        [JsonIgnore]
         public string FieldFullName { get
             {
                 var aggregatefunction = _aggregateFunction.ToString() + "({0})";
@@ -192,6 +200,7 @@ namespace SQLDecorator
                 else return  fullName;
             }
         }
+        [JsonPropertyName("Column")]
         public string ColumnCaption
         {
             get
@@ -262,6 +271,8 @@ namespace SQLDecorator
                 return new DateTimeColumn { Value = (DateTime)Value };
             return null;
         }
+
+        [JsonPropertyName("Value")]
         public Object Value
         {
             get
@@ -273,6 +284,8 @@ namespace SQLDecorator
                 _value = value;
             }
         }
+
+        [JsonIgnore]
         public int? OrdinalNumber { get; set; }
       
     }
@@ -429,7 +442,7 @@ namespace SQLDecorator
             this.VirtualValue = VirtualValue;
         }
     }
-    public class Select
+    public class Select : JsonFactory<Select>
     {
         string _compliedSentes;
         bool _compileDone;
@@ -457,8 +470,14 @@ namespace SQLDecorator
         List<DBTable> SelectedTables { get; set; }
         List<Condition> WhereConditions { get; set; }
         List<Condition> HavingConditions { get; set; }
+
+        [JsonIgnore]
         public List<TableColumn> Columns { get; private set; }
+
+        [JsonIgnore]
         public List<DbParameter> Parameters { get; internal set ;}
+
+        [JsonPropertyName("Result")]
         public List<ResultRecord> Result { get; internal set;}
         public Select(DbConnectionManager DbconnectionManager)
         {
@@ -807,8 +826,13 @@ namespace SQLDecorator
             _compileDone = true;
             return _compliedSentes;
         }
+
+        public string ToJson()
+        {
+           return JsonSerializer.Serialize(this);
+        }
     }
-    public class Condition
+    public class Condition 
     {
         internal Select parentSelect { get; set; }
         Condition _prev;
@@ -1649,7 +1673,7 @@ namespace SQLDecorator
             return c;
         }
     }
-    public class ResultRecord : Record
+    public class ResultRecord : Record 
     {
         internal ResultRecord(DbDataReader Reader, TableColumn[] Columns)
         {

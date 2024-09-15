@@ -2,7 +2,8 @@
 using Microsoft.Data.Sqlite;
 using System;
 using SQLDecorator;
-using DBTables;
+using System.Text.Json;
+using CommonInfra.Serialization;
 
 namespace SqlDecTest
 {
@@ -125,7 +126,11 @@ namespace SqlDecTest
 
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
 
+            
+            Console.WriteLine(select.ToJson());
+
             Console.ReadKey();
+
             var selectAll = new Select(northWind2)
                      .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
                      .TableJoin(order, "Orders", order.OrderID.Equal(orderDetail.OrderID))
@@ -158,6 +163,13 @@ namespace SqlDecTest
             Console.WriteLine(selectCmd.CaptionsToString());            
             Console.WriteLine();                                 
             }
+
+
+        public class koko 
+        {
+            public int high { get; set; } = 11;
+            public string name { get; set; } = "hello";
+        }
     }
     }
 
