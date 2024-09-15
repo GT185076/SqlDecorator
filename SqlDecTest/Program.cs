@@ -2,8 +2,6 @@
 using Microsoft.Data.Sqlite;
 using System;
 using SQLDecorator;
-using System.Text.Json;
-using CommonInfra.Serialization;
 
 namespace SqlDecTest
 {
@@ -19,8 +17,6 @@ namespace SqlDecTest
         }
         static void RunMssql()
         {
-           
-
             Console.WriteLine("\nQuery data example:");
             Console.WriteLine("=========================================\n");
 
@@ -73,8 +69,6 @@ namespace SqlDecTest
                     $"{olr.OrderID}\t" +
                     $"{olr.ProductId}\t" +
                     $"{olr.Quantity}\t");
-           
-
 
             Console.Read();
             var order2 = new DBTables.MsSql.Orders();
@@ -127,7 +121,7 @@ namespace SqlDecTest
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
 
             
-            Console.WriteLine(select.ToJson());
+            Console.WriteLine(select.Result.ToJson());
 
             Console.ReadKey();
 
@@ -164,12 +158,6 @@ namespace SqlDecTest
             Console.WriteLine();                                 
             }
 
-
-        public class koko 
-        {
-            public int high { get; set; } = 11;
-            public string name { get; set; } = "hello";
-        }
     }
     }
 
