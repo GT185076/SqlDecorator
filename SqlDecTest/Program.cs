@@ -97,7 +97,7 @@ namespace SqlDecTest
             var totalAmount = new IntegerColumn("Total Amount", "Products.Price * OrderLines.Quantity");
 
             var select = new Select(northWind2)
-                     //.One()
+                     .One()
                      .TableAdd(orderDetail, "OrderLines")
                      .ColumnAdd(orderDetail.ProductId)
                      .ColumnAdd(product.ProductName)
@@ -120,7 +120,6 @@ namespace SqlDecTest
             }
 
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
-
             
             Console.WriteLine(select.ToJson());
 

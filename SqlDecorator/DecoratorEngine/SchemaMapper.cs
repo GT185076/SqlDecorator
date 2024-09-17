@@ -28,7 +28,8 @@ namespace SQLDecorator
         Integer,
         Number,
         DateTime,
-        Logical
+        Logical,
+        Complex
     }
     public enum AggregateFunction
     {
@@ -418,8 +419,8 @@ namespace SQLDecorator
         {
             get
             {
-                DateTime iv = (DateTime)_value;
-                return iv;
+                DateTime dv = (DateTime)_value;
+                return dv;
             }
             set
             {
@@ -441,6 +442,28 @@ namespace SQLDecorator
             columnType = ColumnType.DateTime;
             this.VirtualValue = VirtualValue;
         }
+    }
+    public class ComplexColumn : TableColumn
+    {
+        public new Select Value
+        {
+            get
+            {
+                Select sv = (Select)_value;
+                return sv;
+            }
+            set
+            {
+                _value = value;
+            }
+        }
+        public ComplexColumn(string Caption, Select Value)
+        {
+            this.ColumnCaption = Caption;
+            columnType = ColumnType.Complex;
+            this.Value =Value;
+        }
+
     }
     public class Select 
     {
@@ -713,7 +736,7 @@ namespace SQLDecorator
             sf.Append("\n");
             bool isFirst = true;
 
-            foreach (var f in Columns)
+            foreach (var f in Columns.FindAll((c)=> c.columnType!= ColumnType.Complex))
             {
                 if (isFirst == true)
                     sf.Append($" {f.FieldFullName} ");
@@ -833,7 +856,6 @@ namespace SQLDecorator
             _compileDone = true;
             return _compliedSentes;
         }
-
         public string ToJson()
         {
             return Result.ToJson(IsOne);
