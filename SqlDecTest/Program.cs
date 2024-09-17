@@ -96,7 +96,8 @@ namespace SqlDecTest
             var orderDetail = new DBTables.Sqlite.OrderDetails();
             var totalAmount = new IntegerColumn("Total Amount", "Products.Price * OrderLines.Quantity");
 
-            var select = new Select(northWind2)                     
+            var select = new Select(northWind2)
+                     //.One()
                      .TableAdd(orderDetail, "OrderLines")
                      .ColumnAdd(orderDetail.ProductId)
                      .ColumnAdd(product.ProductName)
@@ -121,7 +122,7 @@ namespace SqlDecTest
             Console.WriteLine($"\n{select.Result.Count} Rows Selected.\n");
 
             
-            Console.WriteLine(select.Result.ToJson());
+            Console.WriteLine(select.ToJson());
 
             Console.ReadKey();
 

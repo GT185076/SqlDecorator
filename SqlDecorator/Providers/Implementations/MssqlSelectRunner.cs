@@ -30,7 +30,10 @@ namespace SQLDecorator.Providers
                     while (reader.Read())
                     {
                         var record = statment.FeatchNextRecord(reader);
+
                         yield return record;
+                        if (statment.IsOne) 
+                            yield break;
                     }
             }
         }
@@ -45,6 +48,7 @@ namespace SQLDecorator.Providers
                     while (await reader.ReadAsync())
                     {
                         var record = statment.FeatchNextRecord(reader);
+                        if (statment.IsOne) break;
                     }
                 }
             }
@@ -65,8 +69,10 @@ namespace SQLDecorator.Providers
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
+                    {
                         if (reader.FieldCount > 0)
-                            sf.Append(reader[0].ToString());
+                            sf.Append(reader[0].ToString());                       
+                    }
                 }
             }
                 

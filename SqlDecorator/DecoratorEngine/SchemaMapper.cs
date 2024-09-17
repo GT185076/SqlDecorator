@@ -442,13 +442,14 @@ namespace SQLDecorator
             this.VirtualValue = VirtualValue;
         }
     }
-    public class Select : JsonFactory<Select>
+    public class Select 
     {
         string _compliedSentes;
         bool _compileDone;
         bool _isDistict;
         int  _Top;
         int  _fieldCount;
+        internal bool IsOne { get; private set;}
         internal DbConnectionManager dbConnectionManager;              
         List<TableColumn> GroupBy { get; set; }
         Dictionary<TableColumn,OrderBy> OrderBy { get; set; }
@@ -502,6 +503,12 @@ namespace SQLDecorator
         {
             _compileDone = false;
             _Top = RowsCount;
+            if (_Top ==1 ) IsOne = true;
+            return this;
+        }
+        public Select One()
+        {
+            IsOne = true;
             return this;
         }
         public Select ColumnAdd(TableColumn tc, string Caption = null)
@@ -829,7 +836,7 @@ namespace SQLDecorator
 
         public string ToJson()
         {
-           return JsonSerializer.Serialize(this);
+            return Result.ToJson(IsOne);
         }
     }
     public class Condition 

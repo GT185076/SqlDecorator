@@ -85,7 +85,7 @@ namespace SQLDecorator
             }
         }
 
-        public static string ToJson(this IEnumerable<Record> result)
+        public static string ToJson(this IEnumerable<Record> result,bool IsOne=false)
         {
             var sba = new StringBuilder();
             foreach (ResultRecord resultRecord in result)
@@ -99,8 +99,12 @@ namespace SQLDecorator
                     sbr.Append("\"").Append(c.ColumnCaption).Append("\":").Append(JsonSerializer.Serialize(c.Value));
                 }
                 sba.Append(sbr).Append("}");                                
-            }                         
-            string serialResult = "{["+sba.ToString()+"]}";
+            }
+            string serialResult =
+                                  (IsOne ? "" : "{[") +
+                                  sba.ToString() +
+                                  (IsOne ? "" : "]}");
+                                  
             return serialResult;
         }
 

@@ -28,6 +28,8 @@ namespace SQLDecorator.Providers
                     {
                         var record = statment.FeatchNextRecord(reader);
                         yield return record;
+                        if (statment.IsOne)
+                            yield break;
                     }
                 }
             }
@@ -43,6 +45,7 @@ namespace SQLDecorator.Providers
                     while (await reader.ReadAsync())
                     {
                         var record = statment.FeatchNextRecord(reader);
+                        if (statment.IsOne) break;
                     }
                 }
             }
