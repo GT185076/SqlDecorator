@@ -4,7 +4,7 @@ using System;
 using SQLDecorator;
 using DBTables.MsSql;
 
-namespace SqlDecTest
+namespace NorthWindTest
 {
     class Program
     {

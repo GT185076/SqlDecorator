@@ -13,4 +13,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SqlDecorator\SQLDecorator.csproj" />
+    <ProjectReference Include="..\SqlDecTest\NorthWind.csproj" />
+  </ItemGroup>
+
 </Project>
