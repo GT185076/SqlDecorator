@@ -2,6 +2,7 @@
 using Microsoft.Data.Sqlite;
 using System;
 using SQLDecorator;
+using DBTables.MsSql;
 
 namespace SqlDecTest
 {
@@ -91,10 +92,15 @@ namespace SqlDecTest
             builder.DataSource = ":memory:";
             var northWind2 = new DBTables.Sqlite.NorthWind2(builder.ConnectionString);
 
+          
+
             var product     = new DBTables.Sqlite.Product();
             var order       = new DBTables.Sqlite.Orders();
             var orderDetail = new DBTables.Sqlite.OrderDetails();
             var totalAmount = new IntegerColumn("Total Amount", "Products.Price * OrderLines.Quantity");
+
+            var koko = DBTables.Sqlite.Orders.GetById(northWind2, 10287);
+            Console.WriteLine(koko.ToString());
 
             var select = new Select(northWind2)
                      .One()

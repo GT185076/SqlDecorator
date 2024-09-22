@@ -1,4 +1,7 @@
-﻿using SQLDecorator;
+﻿using DBTables.MsSql;
+using SQLDecorator;
+using SQLDecorator.Providers;
+using System.Linq;
 
 namespace DBTables.Sqlite
 {
@@ -26,6 +29,11 @@ namespace DBTables.Sqlite
         public override TableColumn[] GetPrimaryKey()
         {
             return  new TableColumn[] { OrderID };
+        }
+        
+        public static Orders GetById(DbConnectionManager DbconnectionManager, int OrderId)
+        {
+            return GetById<Orders>(DbconnectionManager, OrderId);
         }
     }
 }

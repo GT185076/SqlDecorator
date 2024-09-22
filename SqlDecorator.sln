@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQLDecorator", "SqlDecorato
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlDecTest", "SqlDecTest\SqlDecTest.csproj", "{C1A80DCD-7D48-4371-B372-C9F318A09336}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebQL", "WebQL\WebQL.csproj", "{933E9EAF-3DD2-4BE1-9D93-E5C5174B3F0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C1A80DCD-7D48-4371-B372-C9F318A09336}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A80DCD-7D48-4371-B372-C9F318A09336}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1A80DCD-7D48-4371-B372-C9F318A09336}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933E9EAF-3DD2-4BE1-9D93-E5C5174B3F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933E9EAF-3DD2-4BE1-9D93-E5C5174B3F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933E9EAF-3DD2-4BE1-9D93-E5C5174B3F0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933E9EAF-3DD2-4BE1-9D93-E5C5174B3F0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
