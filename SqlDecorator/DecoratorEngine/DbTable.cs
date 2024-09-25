@@ -20,9 +20,13 @@ namespace SQLDecorator
     }
     public abstract class DBTable : Record
     {
+        [JsonIgnore]
         internal string _caption { get; set; }
+        [JsonIgnore]
         public string Schema { private set; get; }
+        [JsonIgnore]
         public string TableName { private set; get; }
+        [JsonIgnore]
         public string TableCaption
         {
             get
@@ -75,8 +79,11 @@ namespace SQLDecorator
             }
 
         }
+        [JsonIgnore]
         public JoinType JoinType { internal set; get; }
+        [JsonIgnore]
         public Condition JoinCondition { set; get; }
+        [JsonIgnore]
         public int? OrdinalNumber { set; get; }
         public abstract TableColumn[] GetPrimaryKey();
         public static T GetById<T>(DbConnectionManager DbconnectionManager, params object[] KeysValues) where T : DBTable, new()
@@ -149,6 +156,7 @@ namespace SQLDecorator
         [JsonIgnore]
         public string VirtualValue { get; set; }
 
+        [JsonIgnore]
         public string TableName { get { return ParentTable?.TableName; } }
         [JsonIgnore]
         public string FieldFullName
@@ -356,6 +364,7 @@ namespace SQLDecorator
     }
     public class IntegerColumn : TableColumn
     {
+        [JsonPropertyName("Value")]
         public new int Value
         {
             get

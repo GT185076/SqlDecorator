@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Script.Serialization;
 using System.ComponentModel;
+using System.Text.Json;
 
 namespace CommonInfra.Serialization
 {
@@ -290,7 +290,7 @@ namespace CommonInfra.Serialization
 
         static public string ToJson(RecordType o)
         {
-            string json = new JavaScriptSerializer().Serialize(o);
+            string json = JsonSerializer.Serialize(o);
             return json;
         }
 
@@ -299,12 +299,10 @@ namespace CommonInfra.Serialization
             RecordType Rt = default(RecordType);
 
             if (Json != null && Json.Trim() != "")
-            {
-                var ds = new JavaScriptSerializer();
-
+            {                
                 try
                 {
-                    Rt = (RecordType)ds.Deserialize(Json, typeof(RecordType));
+                   Rt= JsonSerializer.Deserialize<RecordType> (Json);                    
                 }
                 catch
                 {
