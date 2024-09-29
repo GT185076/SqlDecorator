@@ -14,6 +14,8 @@ namespace WebQL.Controllers
         public NorthWindController(ILogger<NorthWindController> logger)
         {
             _logger = logger;
+            if (!NorthWind.ConnectionsInstaller.IsStart)
+                throw new Exception("Connection Not started");
         }
 
         [HttpGet(Name = "NorthWind")]

@@ -10,13 +10,19 @@ using System.Threading.Tasks;
 
 namespace NorthWind
 {
-    static public class ConnectionsInstaller
+    public static class ConnectionsInstaller
     {
-        static public void Init()
+        public static bool IsStart { get; internal set; }
+        static ConnectionsInstaller()
+        {
+            Init();
+            IsStart = true;
+        }
+        public static void Init()
         {
             SetNw2DbConnection();
         }
-        static public void SetNw2DbConnection()
+        public static void SetNw2DbConnection()
         {
             SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder();
             builder.DataSource = "Nortwind_Sqlight.db";
