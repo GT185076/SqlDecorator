@@ -7,7 +7,7 @@ namespace SQLDecorator.Providers
   
     public abstract class SqliteConnectionManager  : DbConnectionManager
     {
-        public SqliteConnectionManager(string ConnectionString , bool IsLog = false) :base(ConnectionString, IsLog) 
+        public SqliteConnectionManager(string Alias,string ConnectionString , bool IsLog = false) :base(Alias,ConnectionString, IsLog) 
         {         
             runner = Resolver<DbProviderRunner>.Resolve(DBProvider.SqlLite.ToString());
             DbConnection= runner.CreateDbConnection(ConnectionString);

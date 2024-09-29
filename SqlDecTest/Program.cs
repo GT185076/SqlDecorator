@@ -27,7 +27,7 @@ namespace NorthWindTest
             builder.InitialCatalog = "NorthWind";
             builder.TrustServerCertificate = true;
 
-            var northWind = new DBTables.MsSql.NorthWind(builder.ConnectionString);                     
+            var northWind = new DBTables.MsSql.NorthWind("mssql",builder.ConnectionString);                     
 
             var product     = new DBTables.MsSql.Product();
             var order       = new DBTables.MsSql.Orders();
@@ -90,10 +90,7 @@ namespace NorthWindTest
             SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder();
             builder.DataSource = "Nortwind_Sqlight.db";
             builder.DataSource = ":memory:";
-            var northWind2 = new DBTables.Sqlite.NorthWind2(builder.ConnectionString);
-
-          
-
+            var northWind2 = new DBTables.Sqlite.NorthWind2("mem", builder.ConnectionString);
             var product     = new DBTables.Sqlite.Product();
             var order       = new DBTables.Sqlite.Orders();
             var orderDetail = new DBTables.Sqlite.OrderDetails();

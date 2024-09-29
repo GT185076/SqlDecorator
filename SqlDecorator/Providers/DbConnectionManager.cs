@@ -8,6 +8,7 @@ namespace SQLDecorator.Providers
 {
     public abstract class DbConnectionManager
     {
+        public static Dictionary<string,DbConnectionManager> Connections { get; set; } = new Dictionary<string,DbConnectionManager>();
         public DbConnection DbConnection { get; protected set; }
         protected bool isLog;
         protected List<Action> migrationActions = new List<Action>();
@@ -16,12 +17,13 @@ namespace SQLDecorator.Providers
         {
             Installer.Init();
         }
-        protected DbConnectionManager(string ConnectionString, bool IsLog = false)
+        protected DbConnectionManager(string Alias,string ConnectionString, bool IsLog = false)
         {
             if (ConnectionString == null) throw new ArgumentNullException();
             else
             {
                 isLog = IsLog;
+                Connections.Add(Alias, this);
             }
         }
         protected void RunMigrationList()

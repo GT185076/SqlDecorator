@@ -2,14 +2,15 @@
 using Microsoft.Data.SqlClient;
 using SQLDecorator.Providers;
 using SQLDecorator.Composer;
+using Microsoft.Data.Sqlite;
 
 namespace SQLDecorator
 {
     public enum DBProvider
     {
-       MsSql,
-       PostGres,
-       SqlLite
+        MsSql,
+        PostGres,
+        SqlLite
     }
     static public class Installer
     {
@@ -21,3 +22,4 @@ namespace SQLDecorator
         }
     }
 }
+

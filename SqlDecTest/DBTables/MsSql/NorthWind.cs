@@ -9,7 +9,7 @@ namespace DBTables.MsSql
 {
     public class NorthWind : MsSqlConnectionManager
     {
-        public NorthWind(string ConnectionString, bool IsLog = false) : base(ConnectionString, IsLog)
+        public NorthWind(string Alias,string ConnectionString, bool IsLog = false) : base(Alias, ConnectionString, IsLog)
         {
             migrationActions.Add(Ver1);
             RunMigrationList();

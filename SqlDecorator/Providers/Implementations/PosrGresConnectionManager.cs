@@ -5,7 +5,7 @@ namespace SQLDecorator.Providers
   
     public abstract class PostGresConnectionManager : DbConnectionManager
     {
-        public PostGresConnectionManager(string ConnectionString, bool IsLog = false) : base(ConnectionString, IsLog)
+        public PostGresConnectionManager(string Alias, string ConnectionString, bool IsLog = false) : base(Alias, ConnectionString, IsLog)
         {           
             runner = Resolver<DbProviderRunner>.Resolve(DBProvider.PostGres.ToString());
             DbConnection = runner.CreateDbConnection(ConnectionString);

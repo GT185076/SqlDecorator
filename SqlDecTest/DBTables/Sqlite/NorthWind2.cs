@@ -9,7 +9,7 @@ namespace DBTables.Sqlite
 {
     public class NorthWind2 : SqliteConnectionManager
     {
-        public NorthWind2(string ConnectionString, bool IsLog = false) : base(ConnectionString, IsLog)
+        public NorthWind2(string Alias,string ConnectionString, bool IsLog = false) : base(Alias,ConnectionString, IsLog)
         {
             migrationActions.Add(Ver1);
             RunMigrationList();
