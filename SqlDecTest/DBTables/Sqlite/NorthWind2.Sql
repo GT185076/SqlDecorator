@@ -97,7 +97,7 @@ CREATE TABLE OrderDetails(
 	FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
 );
 Go
-CREATE View View1 as
+CREATE View OrderView as
 Select OrderDetailID ,
     OrderID ,
     ProductID ,

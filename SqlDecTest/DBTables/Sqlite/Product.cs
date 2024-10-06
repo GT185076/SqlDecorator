@@ -4,22 +4,22 @@ namespace DBTables.Sqlite
 {
     public class Product : DBTable
     {
-        [ColumnName("ProductID")]
+        [ColumnDBName("ProductID")]
         public IntegerColumn ProductId;
 
-        [ColumnName("ProductName")]
+        [ColumnDBName("ProductName")]
         public StringColumn ProductName;
 
-        [ColumnName("SupplierID")]
+        [ColumnDBName("SupplierID")]
         public IntegerColumn SupplierID;
 
-        [ColumnName("CategoryID")]
+        [ColumnDBName("CategoryID")]
         public IntegerColumn CategoryID;
 
-        [ColumnName("Unit")]
+        [ColumnDBName("Unit")]
         public StringColumn Unit;
 
-        [ColumnName("Price")]
+        [ColumnDBName("Price")]
         public NumberColumn Price;
 
         public Product() : base("Products")

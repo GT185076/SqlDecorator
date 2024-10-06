@@ -2,13 +2,13 @@
 
 namespace SQLDecorator
 {
-    public class ColumnNameAttribute : Attribute
+    public class ColumnDBNameAttribute : Attribute
     {
         private string v;
 
-        public ColumnNameAttribute() { }
+        public ColumnDBNameAttribute() { }
 
-        public ColumnNameAttribute(string ColumnName)
+        public ColumnDBNameAttribute(string ColumnName)
         {
             v = ColumnName;
         }

@@ -68,7 +68,7 @@ namespace SQLDecorator
                 }
                 else
                 {
-                    var columnName = field.GetCustomAttributes(typeof(ColumnNameAttribute), true).FirstOrDefault() as ColumnNameAttribute;
+                    var columnName = field.GetCustomAttributes(typeof(ColumnDBNameAttribute), true).FirstOrDefault() as ColumnDBNameAttribute;
                     var constractor = field.FieldType.GetConstructor(new Type[] { typeof(string) });
                     var newColumn = constractor.Invoke(new string[] { columnName.ColumnName }) as TableColumn;
                     if (newColumn != null)

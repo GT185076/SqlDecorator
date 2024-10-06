@@ -7,16 +7,16 @@ namespace DBTables.Sqlite
 {
     public class Orders : DBTable
     {
-        [ColumnName("OrderID")]
+        [ColumnDBName("OrderID")]
         public IntegerColumn OrderID;
 
-        [ColumnName("CustomerID")]
+        [ColumnDBName("CustomerID")]
         public IntegerColumn CustomerID;
 
-        [ColumnName("OrderDate")]
+        [ColumnDBName("OrderDate")]
         public DateTimeColumn OrderDate;
 
-        [ColumnName("ShipperId")]
+        [ColumnDBName("ShipperId")]
         public IntegerColumn ShipperId;
         
         public IntegerColumn numbersOflines = new IntegerColumn("NumberOfLines", 

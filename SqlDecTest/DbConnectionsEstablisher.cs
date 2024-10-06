@@ -10,24 +10,23 @@ using System.Threading.Tasks;
 
 namespace NorthWind
 {
-    public static class ConnectionsInstaller
+    public static class DbConnectionsEstablisher
     {
-        public static bool IsStart { get; internal set; }
-        static ConnectionsInstaller()
-        {
-            Init();
-            IsStart = true;
-        }
-        public static void Init()
-        {
+        static DbConnectionsEstablisher()
+        {        
             SetNw2DbConnection();
         }
-        public static void SetNw2DbConnection()
+        static void SetNw2DbConnection()
         {
             SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder();
             builder.DataSource = "Nortwind_Sqlight.db";
             builder.DataSource = ":memory:";
             new DBTables.Sqlite.NorthWind2("NorthWindOnMemeory",builder.ConnectionString);
+        }
+
+        static public DbConnectionManager GetNw2()
+        {
+            return DbConnectionManager.Connections["NorthWindOnMemeory"];
         }
     }
     

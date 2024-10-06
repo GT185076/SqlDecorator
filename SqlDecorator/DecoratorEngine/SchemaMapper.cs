@@ -224,6 +224,35 @@ namespace SQLDecorator
 
             return this;
         }
+
+        public Select TableAdd<T>(T Table, string Caption = null,params string[] ColumnNames) where T : DBTable
+        {
+            _compileDone = false;
+            var t = Table.GetType();
+            var fa = t.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            Table.OrdinalNumber = SelectedTables.Count;
+
+            if (!string.IsNullOrEmpty(Caption))
+                Table.TableCaption = Caption;
+            else
+                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+
+            foreach (var cn in ColumnNames)
+            {
+                var f = fa.FirstOrDefault(x => x.Name == cn);
+                if (f != null)
+                {
+                    var tc = f.GetValue(Table) as TableColumn;
+                    tc.ParentTable = Table;
+                    ColumnAdd(tc, $"{tc.ColumnCaption}_{Table.OrdinalNumber}");
+                }
+                else
+                    throw new Exception("Column not found :"+cn);
+            }
+            SelectedTables.Add(Table);
+
+            return this;
+        }
         public Select TableLeftJoin<T>(T Table,string Caption, Condition JoinCondition,ColumnsSelection ColumnsSelection = ColumnsSelection.None) where T : DBTable
         {
             _compileDone = false;

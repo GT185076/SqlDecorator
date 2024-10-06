@@ -4,19 +4,19 @@ namespace DBTables.MsSql
 {
     public class OrderDetails : DBTable
     {
-        [ColumnName("OrderID")]
+        [ColumnDBName("OrderID")]
         public IntegerColumn OrderID;
 
-        [ColumnName("ProductID")]
+        [ColumnDBName("ProductID")]
         public IntegerColumn ProductId;
 
-        [ColumnName("UnitPrice")]
+        [ColumnDBName("UnitPrice")]
         public NumberColumn UnitPrice;
 
-        [ColumnName("Quantity")]
+        [ColumnDBName("Quantity")]
         public IntegerColumn Quantity;
 
-        [ColumnName("Discount")]
+        [ColumnDBName("Discount")]
         public NumberColumn Discount;
 
         public OrderDetails() : base("Order Details", "dbo")

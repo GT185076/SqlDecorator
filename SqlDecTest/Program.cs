@@ -141,11 +141,11 @@ namespace NorthWindTest
                     
 
             Console.Read();
-            var View1 = new DBTables.Sqlite.View1();
+            var View1 = new DBTables.Sqlite.OrderView();
             var selectOrder = new Select(northWind2).TableAdd(View1, null, ColumnsSelection.All);
             printCaptions(selectOrder);
 
-            foreach (var or in selectOrder.Run().Export<DBTables.Sqlite.View1>())
+            foreach (var or in selectOrder.Run().Export<DBTables.Sqlite.OrderView>())
                 Console.WriteLine(or.ToString());
 
             Console.Read();

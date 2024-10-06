@@ -13,11 +13,11 @@ namespace NorthWind.Views
    
     public class Orders
     {              
-        public IEnumerable<View1> GetOrders()
+        public IEnumerable<OrderView> GetOrders(string[] ColumnsNames)
         {
-            var View1 = new DBTables.Sqlite.View1();
-            var selectOrder = new Select(DbConnectionManager.Connections["NorthWindOnMemeory"]).TableAdd(View1, null, ColumnsSelection.All);
-            var viewRecord = selectOrder.Run().Export<DBTables.Sqlite.View1>();
+            var View1 = new DBTables.Sqlite.OrderView();
+            var selectOrder = new Select(DbConnectionManager.Connections["NorthWindOnMemeory"]).TableAdd(View1, null,ColumnsNames);
+            var viewRecord = selectOrder.Run().Export<DBTables.Sqlite.OrderView>();
             return viewRecord;
         }
     }

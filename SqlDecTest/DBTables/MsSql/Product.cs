@@ -4,34 +4,34 @@ namespace DBTables.MsSql
 {
     public class Product : DBTable
     {
-        [ColumnName("ProductID")]
+        [ColumnDBName("ProductID")]
         public IntegerColumn ProductId;
 
-        [ColumnName("ProductName")]
+        [ColumnDBName("ProductName")]
         public StringColumn ProductName;
 
-        [ColumnName("SupplierID")]
+        [ColumnDBName("SupplierID")]
         public IntegerColumn SupplierID;
 
-        [ColumnName("CategoryID")]
+        [ColumnDBName("CategoryID")]
         public IntegerColumn CategoryID;
 
-        [ColumnName("QuantityPerUnit")]
+        [ColumnDBName("QuantityPerUnit")]
         public StringColumn QuantityPerUnit;
 
-        [ColumnName("UnitPrice")]
+        [ColumnDBName("UnitPrice")]
         public NumberColumn UnitPrice;
 
-        [ColumnName("UnitsInStock")]
+        [ColumnDBName("UnitsInStock")]
         public IntegerColumn UnitsInStock;
 
-        [ColumnName("UnitsOnOrder")]
+        [ColumnDBName("UnitsOnOrder")]
         public IntegerColumn UnitsOnOrder;
 
-        [ColumnName("ReorderLevel")]
+        [ColumnDBName("ReorderLevel")]
         public IntegerColumn ReorderLevel;
 
-        [ColumnName("Discontinued")]
+        [ColumnDBName("Discontinued")]
         public LogicalColumn Discontinued;
 
         public Product() : base("Products", "dbo")
