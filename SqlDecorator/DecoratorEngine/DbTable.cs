@@ -540,7 +540,6 @@ namespace SQLDecorator
             return c;
         }
     }
-
     public static class TableExtention
     {
     }

@@ -1,8 +1,15 @@
-﻿using SQLDecorator;
+﻿using SQLDecorator.WebQL;
+using SQLDecorator;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DBTables.Sqlite
 {
-    public class OrderDetails : DBTable
+    [TableDBName("OrderView")]
+    public class OrderView : DBTable
     {
         [ColumnDBName("OrderDetailID")]
         public IntegerColumn OrderDetailID;
@@ -16,7 +23,7 @@ namespace DBTables.Sqlite
         [ColumnDBName("Quantity")]
         public IntegerColumn Quantity;
 
-        public OrderDetails() : base("OrderDetails")
+        public OrderView() : base("OrderView")
         { }
 
         public override TableColumn[] GetPrimaryKey()
@@ -24,5 +31,5 @@ namespace DBTables.Sqlite
             return new TableColumn[] { OrderDetailID };
         }
     }
-  
+
 }

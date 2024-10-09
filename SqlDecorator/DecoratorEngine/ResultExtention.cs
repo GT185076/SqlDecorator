@@ -88,7 +88,7 @@ namespace SQLDecorator
         public static string ToJson(this IEnumerable<Record> result,bool IsOne=false)
         {
             var sba = new StringBuilder();
-            foreach (ResultRecord resultRecord in result)
+            foreach (Record resultRecord in result )
             {
                 if (sba.Length > 0) sba.Append(",");
                 sba.Append("{");

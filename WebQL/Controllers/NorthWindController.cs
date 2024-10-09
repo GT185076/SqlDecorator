@@ -14,14 +14,15 @@ namespace WebQL.Controllers
         public NorthWindController(ILogger<NorthWindController> logger)
         {
             _logger = logger;
-            if (NorthWind.DbConnectionsEstablisher.GetNw2()==null)
+            if (!NorthWind.DbConnectionsEstablisher.Connect())
                 throw new Exception("Connection Not started");
         }
 
-        [HttpGet(Name = "NorthWind")]
-        public IEnumerable<Record> Get([FromBody] WebQLReq WebQL)
-        {
-            return new NorthWind.Views.Orders().GetOrders(WebQL.Select.ToArray());
+        [HttpGet("{resourceName}",Name = "NorthWind")]
+        public string Get([FromRoute] string resourceName,[FromBody] WebQLReq WebQL)
+        {            
+            var Resource = WebQLManager.WebQLDirectory[resourceName];
+            return Resource.Get(WebQL.Select.ToArray());
         }
        
     }
