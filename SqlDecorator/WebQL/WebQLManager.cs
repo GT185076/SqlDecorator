@@ -16,7 +16,8 @@ namespace SQLDecorator.WebQL
            WebQLManager.WebQLDirectory.Add(InstanceName, this);
         }
         
-        public abstract string Get(string[] ColumnsNames);
+        public abstract string GetMeny(string[] ColumnsNames);
+        public abstract string Get(string Id, string[] ColumnsNames);
 
     }
 }

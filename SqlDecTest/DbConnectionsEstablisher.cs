@@ -14,11 +14,14 @@ namespace NorthWind
 {
     public static class DbConnectionsEstablisher
     {
+        static string DbconnectionName;
         static public bool Connect()
         {
-            string DbconnectionName = SetNw2DbConnection();
-
-            new OrdersQL("Orders", DbconnectionName);
+            if (DbconnectionName == null)
+            {
+                DbconnectionName = SetNw2DbConnection();
+                new OrdersQL("Orders", DbconnectionName);
+            }
 
             return DbConnectionManager.Connections.Count > 0 &&
                    WebQLManager.WebQLDirectory.Count >0;

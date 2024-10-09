@@ -19,11 +19,18 @@ namespace WebQL.Controllers
         }
 
         [HttpGet("{resourceName}",Name = "NorthWind")]
-        public string Get([FromRoute] string resourceName,[FromBody] WebQLReq WebQL)
+        public string GetMeny([FromRoute] string resourceName,[FromBody] WebQLReq WebQL)
         {            
             var Resource = WebQLManager.WebQLDirectory[resourceName];
-            return Resource.Get(WebQL.Select.ToArray());
+            return Resource.GetMeny(WebQL.Select.ToArray());
         }
-       
+
+        [HttpGet("{resourceName}/{identifier?}", Name = "NorthWind By Id")]
+        public string Get([FromRoute] string resourceName,[FromRoute] string identifier, [FromBody] WebQLReq WebQL)
+        {
+            var Resource = WebQLManager.WebQLDirectory[resourceName];
+            return Resource.Get(identifier, WebQL.Select.ToArray());
+        }
+
     }
 }
