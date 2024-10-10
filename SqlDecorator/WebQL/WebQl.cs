@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace SQLDecorator.WebQL
 {
-    public class WebQLReq : JsonFactory<WebQLReq>
-    {            
-        public List<string> Select { get; set; }          
+    public class WebQLReq
+    {
+        public List<string> Select { get; set; }
+        public List<Condition> Where{ get; set;}
     }
     
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -14,11 +15,17 @@ namespace SQLDecorator
 {
     public enum BooleanOperator
     {
+        [JsonPropertyName("None")]    
         None,
+        [JsonPropertyName("And")]
         And,
+        [JsonPropertyName("Or")]
         Or,
+        [JsonPropertyName("Not")]
         Not,
+        [JsonPropertyName("AndNot")]
         AndNot,
+        [JsonPropertyName("OrNot")]
         OrNot       
     }
     public enum AggregateFunction

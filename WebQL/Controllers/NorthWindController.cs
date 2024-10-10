@@ -11,11 +11,12 @@ namespace WebQL.Controllers
       
         private readonly ILogger<NorthWindController> _logger;
 
+       
+
         public NorthWindController(ILogger<NorthWindController> logger)
         {
             _logger = logger;
-            if (!NorthWind.DbConnectionsEstablisher.Connect())
-                throw new Exception("Connection Not started");
+            NorthWind.DbConnectionsEstablisher.Connect();            
         }
 
         [HttpGet("{resourceName}",Name = "NorthWind")]
