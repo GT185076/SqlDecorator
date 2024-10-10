@@ -21,6 +21,7 @@ namespace DBTables.Sqlite
             if (exists == "1") return;
 
             var NorthWindSeedFile =  Path.Combine("bin","debug","net6.0","DBTables","sqlite","NorthWind2.sql");
+            //  NorthWindSeedFile =  Path.Combine("DBTables", "sqlite", "NorthWind2.sql");
             var lines = File.ReadAllLines(NorthWindSeedFile);
             var statement = new StringBuilder();
 
