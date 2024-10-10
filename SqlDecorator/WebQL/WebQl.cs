@@ -12,7 +12,8 @@ namespace SQLDecorator.WebQL
     public class WebQLReq
     {
         public List<string> Select { get; set; }
-        public List<Condition> Where{ get; set;}
+        public List<WebQLCondition> Where{ get; set;}
+
     }
     
 }

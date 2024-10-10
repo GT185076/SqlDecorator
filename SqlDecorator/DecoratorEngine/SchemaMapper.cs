@@ -14,18 +14,16 @@ using SQLDecorator.Providers;
 namespace SQLDecorator
 {
     public enum BooleanOperator
-    {
-        [JsonPropertyName("None")]    
-        None,
-        [JsonPropertyName("And")]
+    {      
+        [Description("and")]
         And,
-        [JsonPropertyName("Or")]
+        [JsonPropertyName("or")]
         Or,
-        [JsonPropertyName("Not")]
+        [JsonPropertyName("not")]
         Not,
-        [JsonPropertyName("AndNot")]
+        [JsonPropertyName("andNot")]
         AndNot,
-        [JsonPropertyName("OrNot")]
+        [JsonPropertyName("orNot")]
         OrNot       
     }
     public enum AggregateFunction
@@ -49,8 +47,7 @@ namespace SQLDecorator
         All
     }
     public enum ComparisonOperator
-    {
-        None,
+    {      
         Equal,
         NotEqual,
         GreaterThan,
@@ -66,7 +63,7 @@ namespace SQLDecorator
         IsNull ,
         NotNull,
         Is,
-        Not        
+        IsNot        
     }
     public enum OrderBy
     {
@@ -560,7 +557,7 @@ namespace SQLDecorator
         public Condition Not(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComparisonOperator.Not;
+            NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
@@ -587,7 +584,7 @@ namespace SQLDecorator
         public Condition AndNot(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComparisonOperator.Not;
+            NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
@@ -604,7 +601,7 @@ namespace SQLDecorator
         public Condition OrNot(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComparisonOperator.Not;
+            NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
@@ -626,19 +623,14 @@ namespace SQLDecorator
             {
                 sentes = new StringBuilder();
                 sentes.Append(")");
-            }
-
-            if (Operator == ComparisonOperator.None)
-            {
-                sentes.Insert(0, $"{firstOperandName}");
-            }
+            }           
 
             if (Operator == ComparisonOperator.Is)
             {
                 sentes.Insert(0, $"{firstOperandName}");
             }
 
-            if (Operator == ComparisonOperator.Not)
+            if (Operator == ComparisonOperator.IsNot)
             {
                 sentes.Insert(0, $"not {firstOperandName}");
             }
@@ -1237,7 +1229,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComparisonOperator.Not,
+                Operator = ComparisonOperator.IsNot,
                 FirstOperand = Lc
             };
             return c;
@@ -1314,5 +1306,4 @@ namespace SQLDecorator
         }
     }
    
-
 }
