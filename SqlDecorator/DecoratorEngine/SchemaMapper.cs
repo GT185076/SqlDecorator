@@ -48,7 +48,7 @@ namespace SQLDecorator
         None,
         All
     }
-    public enum ComperationOperator
+    public enum ComparisonOperator
     {
         None,
         Equal,
@@ -529,7 +529,7 @@ namespace SQLDecorator
         internal Select parentSelect { get; set; }
         Condition _prev;
         public BooleanOperator MainOperator { get; set; }
-        public ComperationOperator Operator { get; set; }
+        public ComparisonOperator Operator { get; set; }
         public TableColumn FirstOperand { get; set; }
         public TableColumn SecondOperand { get; set; }
         public TableColumn ThirdOperand { get; set; }
@@ -543,7 +543,7 @@ namespace SQLDecorator
         public Condition And(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComperationOperator.Is;
+            NextCondition.Operator = ComparisonOperator.Is;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition.parentSelect = this.parentSelect;
             NextCondition._prev = this;
@@ -560,7 +560,7 @@ namespace SQLDecorator
         public Condition Not(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComperationOperator.Not;
+            NextCondition.Operator = ComparisonOperator.Not;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
@@ -570,7 +570,7 @@ namespace SQLDecorator
         public Condition Is(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComperationOperator.Is;
+            NextCondition.Operator = ComparisonOperator.Is;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
@@ -587,7 +587,7 @@ namespace SQLDecorator
         public Condition AndNot(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComperationOperator.Not;
+            NextCondition.Operator = ComparisonOperator.Not;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
@@ -604,7 +604,7 @@ namespace SQLDecorator
         public Condition OrNot(LogicalColumn logicalColumn)
         {
             Condition NextCondition = new Condition();
-            NextCondition.Operator = ComperationOperator.Not;
+            NextCondition.Operator = ComparisonOperator.Not;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition._prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
@@ -628,82 +628,82 @@ namespace SQLDecorator
                 sentes.Append(")");
             }
 
-            if (Operator == ComperationOperator.None)
+            if (Operator == ComparisonOperator.None)
             {
                 sentes.Insert(0, $"{firstOperandName}");
             }
 
-            if (Operator == ComperationOperator.Is)
+            if (Operator == ComparisonOperator.Is)
             {
                 sentes.Insert(0, $"{firstOperandName}");
             }
 
-            if (Operator == ComperationOperator.Not)
+            if (Operator == ComparisonOperator.Not)
             {
                 sentes.Insert(0, $"not {firstOperandName}");
             }
 
-            if (Operator == ComperationOperator.IsNull)
+            if (Operator == ComparisonOperator.IsNull)
             {
                 sentes.Insert(0, $"{firstOperandName} is null");
             }
 
-            if (Operator == ComperationOperator.NotNull)
+            if (Operator == ComparisonOperator.NotNull)
             {
                 sentes.Insert(0, $"{firstOperandName} is not null");
             }
 
-            if (Operator == ComperationOperator.Equal)
+            if (Operator == ComparisonOperator.Equal)
             {
                 sentes.Insert(0, $"{firstOperandName}={SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
-            if (Operator == ComperationOperator.NotEqual)
+            if (Operator == ComparisonOperator.NotEqual)
             {
                 sentes.Insert(0, $"{firstOperandName}!={SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
-            if (Operator == ComperationOperator.GreaterThan)
+            if (Operator == ComparisonOperator.GreaterThan)
             {
                 sentes.Insert(0, $"{firstOperandName}>{SecondOperand.ToNameOrParameter(parentSelect)}");
             }
 
-            if (Operator == ComperationOperator.GreaterEqualThan)
+            if (Operator == ComparisonOperator.GreaterEqualThan)
             {
                     sentes.Insert(0, $"{firstOperandName}>={SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
-            if (Operator == ComperationOperator.LessThan)
+            if (Operator == ComparisonOperator.LessThan)
             {                
                     sentes.Insert(0, $"{firstOperandName}<{SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
-            if (Operator == ComperationOperator.LessEqualThan)
+            if (Operator == ComparisonOperator.LessEqualThan)
             {                
                     sentes.Insert(0, $"{firstOperandName}<={SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
-            if (Operator == ComperationOperator.Like)
+            if (Operator == ComparisonOperator.Like)
             {                
                     sentes.Insert(0, $"{firstOperandName} like {SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
-            if (Operator == ComperationOperator.NotLike)
+            if (Operator == ComparisonOperator.NotLike)
             {                
                     sentes.Insert(0, $"{firstOperandName} not like {SecondOperand.ToNameOrParameter(parentSelect)}");             
             }
 
-            if (Operator == ComperationOperator.In)
+            if (Operator == ComparisonOperator.In)
             {
                 sentes.Insert(0, $"{firstOperandName} in ({SecondOperand.ToNameOrParameter(parentSelect)})");
             }
 
-            if (Operator == ComperationOperator.NotIn)
+            if (Operator == ComparisonOperator.NotIn)
             {
                 sentes.Insert(0, $"{firstOperandName} not in ({SecondOperand.ToNameOrParameter(parentSelect)})");
             }
 
-            if (Operator == ComperationOperator.Between)
+            if (Operator == ComparisonOperator.Between)
             {
                 string statment = string.Empty;                
                 statment = $"{firstOperandName} between {SecondOperand.ToNameOrParameter(parentSelect)}";                
@@ -711,7 +711,7 @@ namespace SQLDecorator
                 sentes.Insert(0, statment);
             }
 
-            if (Operator == ComperationOperator.NotBetween)
+            if (Operator == ComparisonOperator.NotBetween)
             {
                 string statment = string.Empty;
                 statment = $"{firstOperandName}\" not between {SecondOperand.ToNameOrParameter(parentSelect)}";
@@ -745,7 +745,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -755,7 +755,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -765,7 +765,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -775,7 +775,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = Lc,
                 SecondOperand = new LogicalColumn { Value = value }
             };
@@ -785,7 +785,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -795,7 +795,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Equal,
+                Operator = ComparisonOperator.Equal,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -805,7 +805,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -815,7 +815,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -825,7 +825,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -835,7 +835,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = Lc,
                 SecondOperand = new LogicalColumn { Value = value }
             };
@@ -845,7 +845,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -855,7 +855,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotEqual,
+                Operator = ComparisonOperator.NotEqual,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -865,7 +865,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessThan,
+                Operator = ComparisonOperator.LessThan,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -875,7 +875,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessThan,
+                Operator = ComparisonOperator.LessThan,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -885,7 +885,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessThan,
+                Operator = ComparisonOperator.LessThan,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -895,7 +895,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessThan,
+                Operator = ComparisonOperator.LessThan,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -905,7 +905,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessThan,
+                Operator = ComparisonOperator.LessThan,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -915,7 +915,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessEqualThan,
+                Operator = ComparisonOperator.LessEqualThan,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -925,7 +925,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessEqualThan,
+                Operator = ComparisonOperator.LessEqualThan,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -935,7 +935,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessEqualThan,
+                Operator = ComparisonOperator.LessEqualThan,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -945,7 +945,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessEqualThan,
+                Operator = ComparisonOperator.LessEqualThan,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -955,7 +955,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.LessEqualThan,
+                Operator = ComparisonOperator.LessEqualThan,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -965,7 +965,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterThan,
+                Operator = ComparisonOperator.GreaterThan,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -975,7 +975,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterThan,
+                Operator = ComparisonOperator.GreaterThan,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -985,7 +985,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterThan,
+                Operator = ComparisonOperator.GreaterThan,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -995,7 +995,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterThan,
+                Operator = ComparisonOperator.GreaterThan,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -1005,7 +1005,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterThan,
+                Operator = ComparisonOperator.GreaterThan,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -1015,7 +1015,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Between,
+                Operator = ComparisonOperator.Between,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = FirstValue },
                 ThirdOperand = new StringColumn { Value = SecondValue }
@@ -1026,7 +1026,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotBetween,
+                Operator = ComparisonOperator.NotBetween,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = FirstValue },
                 ThirdOperand = new StringColumn { Value = SecondValue }
@@ -1037,7 +1037,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Between,
+                Operator = ComparisonOperator.Between,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = FirstValue },
                 ThirdOperand = new NumberColumn { Value = SecondValue }
@@ -1048,7 +1048,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotBetween,
+                Operator = ComparisonOperator.NotBetween,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = FirstValue },
                 ThirdOperand = new NumberColumn { Value = SecondValue }
@@ -1059,7 +1059,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Between,
+                Operator = ComparisonOperator.Between,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = FirstValue },
                 ThirdOperand = new IntegerColumn { Value = SecondValue }
@@ -1070,7 +1070,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotBetween,
+                Operator = ComparisonOperator.NotBetween,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = FirstValue },
                 ThirdOperand = new IntegerColumn { Value = SecondValue }
@@ -1081,7 +1081,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Between,
+                Operator = ComparisonOperator.Between,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = FirstValue },
                 ThirdOperand = new DateTimeColumn { Value = SecondValue }
@@ -1092,7 +1092,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotBetween,
+                Operator = ComparisonOperator.NotBetween,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = FirstValue },
                 ThirdOperand = new DateTimeColumn { Value = SecondValue }
@@ -1103,7 +1103,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterEqualThan,
+                Operator = ComparisonOperator.GreaterEqualThan,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -1113,7 +1113,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterEqualThan,
+                Operator = ComparisonOperator.GreaterEqualThan,
                 FirstOperand = Nc,
                 SecondOperand = new NumberColumn { Value = value }
             };
@@ -1123,7 +1123,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterEqualThan,
+                Operator = ComparisonOperator.GreaterEqualThan,
                 FirstOperand = Ic,
                 SecondOperand = new IntegerColumn { Value = value }
             };
@@ -1133,7 +1133,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterEqualThan,
+                Operator = ComparisonOperator.GreaterEqualThan,
                 FirstOperand = dtc,
                 SecondOperand = new DateTimeColumn { Value = value }
             };
@@ -1143,7 +1143,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.GreaterEqualThan,
+                Operator = ComparisonOperator.GreaterEqualThan,
                 FirstOperand = Tc,
                 SecondOperand = SecondTc
             };
@@ -1153,7 +1153,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Like,
+                Operator = ComparisonOperator.Like,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -1163,7 +1163,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotLike,
+                Operator = ComparisonOperator.NotLike,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { Value = value }
             };
@@ -1174,7 +1174,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.In,
+                Operator = ComparisonOperator.In,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { ColumnCaption="Array" ,VirtualValue = value }
             };
@@ -1184,7 +1184,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotIn,
+                Operator = ComparisonOperator.NotIn,
                 FirstOperand = Sc,
                 SecondOperand = new StringColumn { ColumnCaption="Array", VirtualValue = value }
             };
@@ -1195,7 +1195,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.In,
+                Operator = ComparisonOperator.In,
                 FirstOperand = Ic,
                 SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
             };
@@ -1205,7 +1205,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotIn,
+                Operator = ComparisonOperator.NotIn,
                 FirstOperand = Ic,
                 SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
             };
@@ -1216,7 +1216,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.In,
+                Operator = ComparisonOperator.In,
                 FirstOperand = Nc,
                 SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
             };
@@ -1226,7 +1226,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotIn,
+                Operator = ComparisonOperator.NotIn,
                 FirstOperand = Nc,
                 SecondOperand = new StringColumn { ColumnCaption = "Array", VirtualValue = value }
             };
@@ -1237,7 +1237,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Not,
+                Operator = ComparisonOperator.Not,
                 FirstOperand = Lc
             };
             return c;
@@ -1246,7 +1246,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.Is,
+                Operator = ComparisonOperator.Is,
                 FirstOperand = Lc
             };
 
@@ -1256,7 +1256,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.IsNull,
+                Operator = ComparisonOperator.IsNull,
                 FirstOperand = Tc
             };
             return c;
@@ -1265,7 +1265,7 @@ namespace SQLDecorator
         {
             var c = new Condition
             {
-                Operator = ComperationOperator.NotNull,
+                Operator = ComparisonOperator.NotNull,
                 FirstOperand = Tc
             };
             return c;
