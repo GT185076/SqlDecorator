@@ -5,17 +5,17 @@ using System.Runtime.CompilerServices;
 
 namespace SQLDecorator.WebQL
 {
-    public abstract class WebQLManager
+    public abstract class WebQLDao
     {
-        public static Dictionary<string,WebQLManager> WebQLDirectory { get; set; } = new Dictionary<string,WebQLManager>();
+        public static Dictionary<string,WebQLDao> WebQLDirectory { get; set; } = new Dictionary<string,WebQLDao>();
         protected string InstanceName { get; set; }
         protected string DBConnectionName { get; set; }
         protected DbConnectionManager ConnectionManager { get; set; }      
         protected string DBConnectionString { get; set; }
-        protected WebQLManager(string InstanceName,string DbCOnnectionName) 
+        protected WebQLDao(string InstanceName,string DbCOnnectionName) 
         {          
            this.InstanceName= InstanceName;
-           WebQLManager.WebQLDirectory.Add(InstanceName, this);
+           WebQLDao.WebQLDirectory.Add(InstanceName, this);
            this.DBConnectionName = DbCOnnectionName;
            ConnectionManager = DbConnectionManager.Connections[DBConnectionName];
         }
@@ -35,7 +35,7 @@ namespace SQLDecorator.WebQL
 
             return select;
         }
-        public abstract string GetMeny(string[] ColumnsNames, WebQLCondition[] conditions);        
+        public abstract string GetMeny(string[] ColumnsNames,int? Top, WebQLCondition[] conditions);        
         public abstract string Get(string Id, string[] ColumnsNames);
 
     }

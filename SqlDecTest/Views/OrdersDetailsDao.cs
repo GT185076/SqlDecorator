@@ -6,10 +6,10 @@ using DBTables.Sqlite;
 namespace NorthWind.Views
 {
   
-    public class OrdersQL : WebQLManager
+    public class OrdersDetailsDao : WebQLDao
     {
         
-        public OrdersQL(string InstanceName,string DBConnectionName) : base(InstanceName,DBConnectionName)
+        public OrdersDetailsDao(string InstanceName,string DBConnectionName) : base(InstanceName,DBConnectionName)
         {
            
         }
@@ -25,10 +25,10 @@ namespace NorthWind.Views
             else
                 selectOrder.TableAdd(OrderView1, null, ColumnsSelection.All);
 
-            int orderid;
-            if (int.TryParse(Id, out orderid))
+            int id;
+            if (int.TryParse(Id, out id))
             {
-                selectOrder.Where(OrderView1.OrderID.Equal(orderid));
+                selectOrder.Where(OrderView1.OrderDetailID.Equal(id));
                 selectOrder.One();
                 var viewRecord = selectOrder.Run();
                 return viewRecord.ToJson(true);
@@ -36,9 +36,10 @@ namespace NorthWind.Views
             else
                 throw new Exception("Item Id Must be a number");
         }
-        public override string GetMeny(string[] ColumnsNames, WebQLCondition[] conditions)
+        public override string GetMeny(string[] ColumnsNames,int? Top, WebQLCondition[] conditions)
         {
             var select = SelectBuild<OrderView>(ColumnsNames,conditions);
+            if (Top.HasValue) select.Top(Top.Value);
             var viewRecord = select.Run();
             return viewRecord.ToJson();
         }

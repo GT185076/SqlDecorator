@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Logging;
 using Npgsql;
+using SQLDecorator.Providers.Implementations;
 
 namespace SQLDecorator.Providers
 
 {
     public class MsssqlSelectRunner : DbProviderRunner
     {
+        public IProviderSyntax Syntax { get; set; } = new MssqlSyntax();
+
         public DbConnection CreateDbConnection(string ConnectionString)
         {
             var DbConnection = new SqlConnection(ConnectionString);
@@ -85,9 +88,30 @@ namespace SQLDecorator.Providers
 
             return sf.ToString();
         }
+
+        DbConnection DbProviderRunner.CreateDbConnection(string ConnectionString)
+        {
+            throw new NotImplementedException();
+        }
+
         DbParameter DbProviderRunner.CreateParameter(string name, object value)
         {
            return new SqlParameter(name, value);
+        }
+
+        IEnumerable<ResultRecord> DbProviderRunner.Run(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ResultRecord>> DbProviderRunner.RunAsync(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        string DbProviderRunner.RunDMLSql(string sql, DbConnection DbConnection, bool IsLog)
+        {
+            throw new NotImplementedException();
         }
     }
 }

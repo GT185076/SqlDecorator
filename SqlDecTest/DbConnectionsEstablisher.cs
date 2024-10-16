@@ -12,6 +12,11 @@ using NorthWind.Views;
 
 namespace NorthWind
 {
+    public enum NWResources
+    {
+        OrdersDetails
+    }
+
     public static class DbConnectionsEstablisher
     {
         static string DbconnectionName;
@@ -20,11 +25,11 @@ namespace NorthWind
             if (DbconnectionName == null)
             {
                 DbconnectionName = SetNw2DbConnection();
-                new OrdersQL("Orders", DbconnectionName);
+                new OrdersDetailsDao(NWResources.OrdersDetails.ToString(), DbconnectionName);
             }
 
             return DbConnectionManager.Connections.Count > 0 &&
-                   WebQLManager.WebQLDirectory.Count >0;
+                   WebQLDao.WebQLDirectory.Count >0;
         }
 
         static string SetNw2DbConnection()

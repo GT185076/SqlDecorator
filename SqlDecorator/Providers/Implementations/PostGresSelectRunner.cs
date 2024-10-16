@@ -4,12 +4,14 @@ using System.Data.Common;
 using Npgsql;
 using System.Text;
 using System;
-using Microsoft.Data.SqlClient;
+using SQLDecorator.Providers.Implementations;
 
 namespace SQLDecorator.Providers
 {
     public class PostGresSelectRunner : DbProviderRunner
     {
+        public IProviderSyntax Syntax { get; set; } = new PostGresSyntax();
+
         public DbConnection CreateDbConnection(string ConnectionString)
         {
             var DbConnection = new NpgsqlConnection(ConnectionString);
@@ -79,10 +81,30 @@ namespace SQLDecorator.Providers
 
             return sf.ToString();
         }
+
+        DbConnection DbProviderRunner.CreateDbConnection(string ConnectionString)
+        {
+            throw new NotImplementedException();
+        }
+
         DbParameter DbProviderRunner.CreateParameter(string name, object value)
         {
             return new NpgsqlParameter(name, value);
         }
 
+        IEnumerable<ResultRecord> DbProviderRunner.Run(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ResultRecord>> DbProviderRunner.RunAsync(Select statment, DbConnection Dbconnection, List<DbParameter> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        string DbProviderRunner.RunDMLSql(string sql, DbConnection DbConnection, bool IsLog)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

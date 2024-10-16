@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SQLDecorator.WebQL;
 using SQLDecorator;
+using NorthWind;
 
 namespace WebQL.Controllers
 {
@@ -20,17 +21,17 @@ namespace WebQL.Controllers
         }
 
         [HttpGet("{resourceName}",Name = "NorthWind")]
-        public string GetMeny([FromRoute] string resourceName,[FromBody] WebQLReq WebQL)
+        public string GetMeny([FromRoute] NWResources NWR,[FromBody] WebQLReq WebQL)
         {            
-            var Resource = WebQLManager.WebQLDirectory[resourceName];
-            return Resource.GetMeny(WebQL.Select.ToArray(),WebQL.Where.ToArray());
+            var Resource = WebQLDao.WebQLDirectory[NWR.ToString()];
+            return Resource.GetMeny(WebQL.Select?.ToArray(),WebQL.Top,WebQL.Where?.ToArray());
         }
 
         [HttpGet("{resourceName}/{identifier?}", Name = "NorthWind By Id")]
-        public string Get([FromRoute] string resourceName,[FromRoute] string identifier, [FromBody] WebQLReq WebQL)
+        public string Get([FromRoute] NWResources NWR, [FromRoute] string identifier, [FromBody] WebQLReq WebQL)
         {
-            var Resource = WebQLManager.WebQLDirectory[resourceName];
-            return Resource.Get(identifier, WebQL.Select.ToArray());
+            var Resource = WebQLDao.WebQLDirectory[NWR.ToString()];
+            return Resource.Get(identifier, WebQL.Select?.ToArray());
         }
 
     }

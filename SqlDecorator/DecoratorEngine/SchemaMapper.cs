@@ -464,7 +464,6 @@ namespace SQLDecorator
             string DISTINCT = "DISTINCT";
             string FROM = "FROM";
             string WHERE = "WHERE";
-            string TOP = "TOP";
             string GROUPBY = "GROUP BY";
             string ORDERBY = "ORDER BY";
             string HAVING = "HAVING";
@@ -473,7 +472,7 @@ namespace SQLDecorator
 
             if (Columns.Count > 0) sf.Append(SELECT);
             if (_isDistict) sf.Append($" {DISTINCT}");
-            if (_Top > 0) sf.Append($" {TOP}({_Top})");
+            if (_Top > 0)   sf.Append(dbConnectionManager .runner.Syntax.Top(_Top)) ;
             sf.Append("\n");
             bool isFirst = true;
 
@@ -588,12 +587,18 @@ namespace SQLDecorator
                     ob.Append($",{o.Key.FieldFullName} {o.Value.ToString()}");
             }
 
+            
+
+            StringBuilder sfx = new StringBuilder();
+            if (_Top > 0) sfx.Append("\n").Append(dbConnectionManager.runner.Syntax.Limit(_Top));
+
             _compliedSentes = sf.ToString() +
                               st.ToString() +
                               sw.ToString() +
                               gb.ToString() +
                               sh.ToString() +
-                              ob.ToString();
+                              ob.ToString() +
+                              sfx.ToString();
             _compileDone = true;
             return _compliedSentes;
         }

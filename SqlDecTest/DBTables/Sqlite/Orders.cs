@@ -20,7 +20,7 @@ namespace DBTables.Sqlite
         public IntegerColumn ShipperId;
         
         public IntegerColumn numbersOflines = new IntegerColumn("NumberOfLines", 
-                                             "(select count (*) from \"OrderDetails\" where \"OrderDetails\".\"OrderId\" = \"Orders_0\".\"OrderId\" )");
+                                             "(select count (*) from \"OrderDetails\" where \"OrderDetails\".\"OrderId\" = \"Orders\".\"OrderId\" )");
 
         public Orders() : base("Orders")
         {          

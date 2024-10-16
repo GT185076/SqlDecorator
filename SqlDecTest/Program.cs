@@ -100,7 +100,7 @@ namespace NorthWindTest
             Console.WriteLine(koko.ToString());
 
             var select = new Select(northWind2)
-                     .One()
+                     .Top(5)
                      .TableAdd(orderDetail, "OrderLines")
                      .ColumnAdd(orderDetail.ProductId)
                      .ColumnAdd(product.ProductName)

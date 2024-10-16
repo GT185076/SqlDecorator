@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
+using SQLDecorator.Providers.Implementations;
 
 namespace SQLDecorator.Providers
 {
     public class SqliteSelectRunner : DbProviderRunner
     {
+        public IProviderSyntax Syntax { get; set; } = new SqlLiteSyntax();
+
         public DbConnection CreateDbConnection(string ConnectionString)
         {
             var DbConnection = new SqliteConnection(ConnectionString);

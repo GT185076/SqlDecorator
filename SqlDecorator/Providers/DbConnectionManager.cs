@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using SQLDecorator.Providers.Implementations;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -12,7 +13,8 @@ namespace SQLDecorator.Providers
         public DbConnection DbConnection { get; protected set; }
         protected bool isLog;
         protected List<Action> migrationActions = new List<Action>();
-        protected DbProviderRunner runner { get; set; }
+        internal  DbProviderRunner runner { get; set; }
+
         static DbConnectionManager()
         {
             Installer.Init();
