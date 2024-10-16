@@ -23,7 +23,7 @@ namespace WebQL.Controllers
         public string GetMeny([FromRoute] string resourceName,[FromBody] WebQLReq WebQL)
         {            
             var Resource = WebQLManager.WebQLDirectory[resourceName];
-            return Resource.GetMeny(WebQL.Select.ToArray());
+            return Resource.GetMeny(WebQL.Select.ToArray(),WebQL.Where.ToArray());
         }
 
         [HttpGet("{resourceName}/{identifier?}", Name = "NorthWind By Id")]

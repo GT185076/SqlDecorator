@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using SQLDecorator.Providers;
 
@@ -19,9 +16,9 @@ namespace DBTables.Sqlite
             var check = "select count(*) from sqlite_master where tbl_name = 'Orders'";
             var exists =  RunDMLSql(check).Trim();
             if (exists == "1") return;
-
-            var NorthWindSeedFile =  Path.Combine("bin","debug","net6.0","DBTables","sqlite","NorthWind2.sql");
-            //  NorthWindSeedFile =  Path.Combine("DBTables", "sqlite", "NorthWind2.sql");
+            var localDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            // var NorthWindSeedFile =  Path.Combine("bin","debug","net6.0","DBTables","sqlite","NorthWind2.sql");
+            var NorthWindSeedFile =  Path.Combine(localDirectory,"DBTables", "sqlite", "NorthWind2.sql");
             var lines = File.ReadAllLines(NorthWindSeedFile);
             var statement = new StringBuilder();
 

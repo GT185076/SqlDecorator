@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CommonInfra.Serialization;
 using SQLDecorator.Providers;
+using SQLDecorator.WebQL;
 
 namespace SQLDecorator
 {
@@ -211,17 +213,20 @@ namespace SQLDecorator
             var t = Table.GetType();
             var fa = t.GetFields(BindingFlags.Instance | BindingFlags.Public);
             Table.OrdinalNumber = SelectedTables.Count;
+            string suffix = string.Empty;
+            if (Table.OrdinalNumber > 0)
+                suffix = $"_{Table.OrdinalNumber}";
 
-            if (!string.IsNullOrEmpty(Caption))
+            if (!string.IsNullOrEmpty(Caption) )
                 Table.TableCaption = Caption;
             else
-                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}{suffix}";
 
             foreach (var f in fa)
             {
                 var tc = f.GetValue(Table) as TableColumn;                
                 tc.ParentTable = Table;
-                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.ColumnCaption}_{Table.OrdinalNumber}");
+                if (ColumnsSelection== ColumnsSelection.All ) ColumnAdd(tc,$"{tc.ColumnCaption}{suffix}");
             }                     
 
             SelectedTables.Add(Table);
@@ -235,11 +240,14 @@ namespace SQLDecorator
             var t = Table.GetType();
             var fa = t.GetFields(BindingFlags.Instance | BindingFlags.Public);
             Table.OrdinalNumber = SelectedTables.Count;
+            string suffix = string.Empty;
+            if (Table.OrdinalNumber > 0)
+                suffix = $"_{Table.OrdinalNumber}";
 
             if (!string.IsNullOrEmpty(Caption))
                 Table.TableCaption = Caption;
             else
-                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}{suffix}";
 
             foreach (var cn in ColumnNames)
             {
@@ -248,7 +256,7 @@ namespace SQLDecorator
                 {
                     var tc = f.GetValue(Table) as TableColumn;
                     tc.ParentTable = Table;
-                    ColumnAdd(tc, $"{tc.ColumnCaption}_{Table.OrdinalNumber}");
+                    ColumnAdd(tc, $"{tc.ColumnCaption}{suffix}");
                 }
                 else
                     throw new Exception("Column not found :"+cn);
@@ -264,16 +272,20 @@ namespace SQLDecorator
             var fa = t.GetFields();
             Table.OrdinalNumber = SelectedTables.Count;
 
+            string suffix = string.Empty;
+            if (Table.OrdinalNumber > 0)
+                suffix = $"_{Table.OrdinalNumber}";
+
             if (!string.IsNullOrEmpty(Caption))
                 Table.TableCaption = Caption;
             else
-                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}{suffix}";
 
             foreach (var f in fa)
             {
                 var tc = f.GetValue(Table) as TableColumn;
                 tc.ParentTable = Table;
-                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}_{Table.OrdinalNumber}");            
+                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}{suffix}");            
             }
            
             Table.JoinType = JoinType.Left;
@@ -287,17 +299,20 @@ namespace SQLDecorator
             var t = Table.GetType();
             var fa = t.GetFields();
             Table.OrdinalNumber = SelectedTables.Count;
+            string suffix = string.Empty;
+            if (Table.OrdinalNumber > 0)
+                suffix = $"_{Table.OrdinalNumber}";
 
             if (!string.IsNullOrEmpty(Caption))
                 Table.TableCaption = Caption;
             else
-                Table.TableCaption = $"{Table.TableName}_{Table.OrdinalNumber}";
+                Table.TableCaption = $"{Table.TableName}{suffix}";
 
             foreach (var f in fa)
             {
                 var tc = f.GetValue(Table) as TableColumn;
                 tc.ParentTable = Table;
-                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}_{Table.OrdinalNumber}");
+                if (ColumnsSelection == ColumnsSelection.All) ColumnAdd(tc, $"{tc.FieldName}{suffix}");
             }
 
             Table.JoinType = JoinType.Inner;
@@ -311,6 +326,72 @@ namespace SQLDecorator
             _compileDone = false;
             WhereAnd(FilterCondition);
             return this;
+        }
+        public Select Where(WebQLCondition[] Conditions)
+        {
+            _compileDone = false;
+            foreach (var condition in Conditions)
+            {
+                var c = WhereWebConvert(condition);
+                if (c.MainOperator == BooleanOperator.And) WhereAnd(c);
+                else
+                if (c.MainOperator == BooleanOperator.Or) WhereOr(c);        
+                else
+                if (c.MainOperator == BooleanOperator.AndNot) WhereAndNot(c);
+                else
+                throw new Exception(c.MainOperator.ToString() + "Logical operator is Not supported Yet in this context");
+            }
+            return this;
+        }
+        Condition WhereWebConvert(WebQLCondition Condition)
+        {
+            var c = new Condition();
+            c.MainOperator = Condition.MainOperator;
+            c.Operator = Condition.ComparisonOperator;
+            c.parentSelect = this;
+
+            if (Condition.FirstOperand != null)
+                if (FieldsDictionary.ContainsKey(Condition.FirstOperand))
+                c.FirstOperand = this.Columns[FieldsDictionary[Condition.FirstOperand]];
+
+            if (Condition.SecondOperand != null)
+                if (FieldsDictionary.ContainsKey(Condition.SecondOperand))
+                    c.SecondOperand = this.Columns[FieldsDictionary[Condition.SecondOperand]];
+                else
+                {
+                    if (c.FirstOperand.columnType == ColumnType.Text)
+                        c.SecondOperand = new StringColumn() { Value = Condition.SecondOperand };
+                    if (c.FirstOperand.columnType == ColumnType.Integer)
+                        c.SecondOperand = new IntegerColumn() { Value = int.Parse(Condition.SecondOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.Number)
+                        c.SecondOperand = new NumberColumn() { Value = decimal.Parse(Condition.SecondOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.DateTime)
+                        c.SecondOperand = new DateTimeColumn() { Value = DateTime.Parse(Condition.SecondOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.Logical)
+                        c.SecondOperand = new LogicalColumn() { Value = bool.Parse(Condition.SecondOperand) };
+                }
+
+            if (Condition.ThirdOperand != null)
+                if (FieldsDictionary.ContainsKey(Condition.ThirdOperand))
+                    c.SecondOperand = this.Columns[FieldsDictionary[Condition.ThirdOperand]];
+                else
+                {
+                    if (c.FirstOperand.columnType == ColumnType.Text)
+                        c.ThirdOperand = new StringColumn() { Value = Condition.ThirdOperand };
+                    if (c.FirstOperand.columnType == ColumnType.Integer)
+                        c.ThirdOperand = new IntegerColumn() { Value = int.Parse(Condition.ThirdOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.Number)
+                        c.ThirdOperand = new NumberColumn() { Value = decimal.Parse(Condition.ThirdOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.DateTime)
+                        c.ThirdOperand = new DateTimeColumn() { Value = DateTime.Parse(Condition.ThirdOperand) };
+                    if (c.FirstOperand.columnType == ColumnType.Logical)
+                        c.ThirdOperand = new LogicalColumn() { Value = bool.Parse(Condition.ThirdOperand) };
+                }
+
+            if (Condition.NextCondition != null)
+                WhereWebConvert(Condition.NextCondition).prev = c;
+
+            return c;
         }
         public Select Having(Condition HavingCondition)
         {
@@ -524,7 +605,7 @@ namespace SQLDecorator
     public class Condition 
     {
         internal Select parentSelect { get; set; }
-        Condition _prev;
+        internal Condition prev;
         public BooleanOperator MainOperator { get; set; }
         public ComparisonOperator Operator { get; set; }
         public TableColumn FirstOperand { get; set; }
@@ -532,7 +613,7 @@ namespace SQLDecorator
         public TableColumn ThirdOperand { get; set; }
         public Condition And(Condition NextCondition)
         {
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
@@ -543,13 +624,13 @@ namespace SQLDecorator
             NextCondition.Operator = ComparisonOperator.Is;
             NextCondition.FirstOperand = logicalColumn;
             NextCondition.parentSelect = this.parentSelect;
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             return NextCondition;
         }
         public Condition Or(Condition NextCondition)
         {
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
@@ -559,7 +640,7 @@ namespace SQLDecorator
             Condition NextCondition = new Condition();
             NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
@@ -569,14 +650,14 @@ namespace SQLDecorator
             Condition NextCondition = new Condition();
             NextCondition.Operator = ComparisonOperator.Is;
             NextCondition.FirstOperand = logicalColumn;
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition AndNot(Condition NextCondition)
         {
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.AndNot;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
@@ -586,14 +667,14 @@ namespace SQLDecorator
             Condition NextCondition = new Condition();
             NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.And;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition OrNot(Condition NextCondition)
         {
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.OrNot;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
@@ -603,17 +684,17 @@ namespace SQLDecorator
             Condition NextCondition = new Condition();
             NextCondition.Operator = ComparisonOperator.IsNot;
             NextCondition.FirstOperand = logicalColumn;
-            NextCondition._prev = this;
+            NextCondition.prev = this;
             NextCondition.MainOperator = BooleanOperator.Or;
             NextCondition.parentSelect = this.parentSelect;
             return NextCondition;
         }
         public Condition GetFirst()
         {
-            if (_prev == null)
+            if (prev == null)
                 return this;
             else
-                return _prev.GetFirst();
+                return prev.GetFirst();
         }
         public string ToString(StringBuilder sentes = null)
         {
@@ -711,10 +792,10 @@ namespace SQLDecorator
                 sentes.Insert(0, statment);
             }
 
-            if (_prev == null)
+            if (prev == null)
             {
                 sentes.Insert(0, "(");
-                if (_prev == null &&
+                if (prev == null &&
                     MainOperator == BooleanOperator.Not) sentes.Insert(0, " not ");
                 return sentes.ToString();
             }
@@ -726,7 +807,7 @@ namespace SQLDecorator
                 if (MainOperator == BooleanOperator.Not) sentes.Insert(0, " not ");
                 if (MainOperator == BooleanOperator.AndNot) sentes.Insert(0, " and not ");
                 if (MainOperator == BooleanOperator.OrNot) sentes.Insert(0, " or not ");
-                return _prev.ToString(sentes);
+                return prev.ToString(sentes);
             }
         }
        
