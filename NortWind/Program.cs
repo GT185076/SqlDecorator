@@ -126,7 +126,7 @@ namespace NorthWindTest
             
             Console.WriteLine(select.ToJson());
 
-            Console.ReadKey();
+            Console.Read ();
 
             var selectAll = new Select(northWind2)
                      .TableAdd(orderDetail, "OrderLines", ColumnsSelection.All)
