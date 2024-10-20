@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NorthWind\NorthWind.csproj" />
     <ProjectReference Include="..\SqlDecorator\SQLDecorator.csproj" />
-    <ProjectReference Include="..\SqlDecTest\NorthWind.csproj" />
   </ItemGroup>
 
   <ItemGroup>
