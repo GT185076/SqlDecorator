@@ -12,8 +12,6 @@ namespace WebQL.Controllers
       
         private readonly ILogger<NorthWindController> _logger;
 
-       
-
         public NorthWindController(ILogger<NorthWindController> logger)
         {
             _logger = logger;
