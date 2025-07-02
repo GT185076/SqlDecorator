@@ -9,7 +9,6 @@ namespace WebQL.Controllers
     [Route("[controller]")]
     public class NorthWindController : ControllerBase
     {
-      
         private readonly ILogger<NorthWindController> _logger;
 
         public NorthWindController(ILogger<NorthWindController> logger)
